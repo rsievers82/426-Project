@@ -1,2 +1,2 @@
 # 426-Project
-Final Project Crew's, COMP 426 
+Final Project Crew, COMP 426 
