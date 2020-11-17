@@ -1,0 +1,27 @@
+{
+  "0": {
+    "id": 0,
+    "password": "Sievers",
+    "money": 5000
+  },
+  "1": {
+    "id": 1,
+    "password": "Sievers",
+    "money": 5000
+  },
+  "2": {
+    "id": 2,
+    "password": "Sievers",
+    "money": 5000
+  },
+  "3": {
+    "id": 3,
+    "password": "Sievers",
+    "money": 5000
+  },
+  "4": {
+    "id": 4,
+    "password": "Sievers",
+    "money": 5000
+  }
+}
