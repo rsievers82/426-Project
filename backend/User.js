@@ -32,6 +32,17 @@ User.getAllUsernames = () => {
     return usernames;
 }
 
+User.getAllUserInfo = () => {
+    let user_info = [];
+    
+    let ids = Object.keys(user_data.data);
+    ids.forEach(id => {
+        user_info.push(user_data.data[id]);
+    });
+
+    return user_info;
+}
+
 User.findByID = (id) => {
     let userData = user_data.get(id);
     if (userData != null) {

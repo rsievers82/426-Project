@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CreateAccount} from './create_account';
@@ -16,13 +17,26 @@ export function Login() {
         }
     }
 
-    function handleLoginAttempt(event) {
+    async function handleLoginAttempt(event) {
         event.preventDefault();
-        if (usernameText === 'randy' && passwordText === 'sievers') {
-            alert('ok');
-        } else {
-            alert('try again');
+        let user_info = await axios({
+            'method': 'get',
+            'url': 'http://localhost:3030/alluserinfo'
+        });
+        
+        for (let i = 0; i < user_info.data.length; i++) {
+            if (user_info.data[i].username === usernameText) {
+                if (user_info.data[i].password === passwordText) {
+                    ReactDOM.render(<h2>Success! Logged in.</h2>, document.getElementById('root'));
+                    return;
+                } else {
+                    ReactDOM.render(<h2>Incorrect Password. Try Again.</h2>, document.getElementById('root'));
+                    return;
+                }
+            }
         }
+        ReactDOM.render(<h2>Username does not exist.</h2>, document.getElementById('root'));
+        return;
     }
 
     function handleCreateButtonClick(event) {

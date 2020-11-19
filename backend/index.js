@@ -29,6 +29,12 @@ app.get('/users/:id', (req, res) => {
     }
 
     res.json(user);
+    return;
+});
+
+app.get('/alluserinfo', (req, res) => {
+    res.json(User.getAllUserInfo());
+    return;
 });
 
 app.post('/users', (req, res) => {

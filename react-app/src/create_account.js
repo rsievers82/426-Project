@@ -27,17 +27,19 @@ export function CreateAccount() {
 
         if (usernames.data.includes(usernameText)) {
             ReactDOM.render(<h2>Username Taken. Try Again</h2>, document.getElementById('root')); 
+            return;
         }
 
         let result = await axios({
             'method': 'post',
             'url': 'http://localhost:3030/users',
             'data': {
-                'user': usernameText,
+                'username': usernameText,
                 'password': passwordText
             }
         });
-        if (result.status === 400) {
+        
+        if (result.request.status === 400) {
             ReactDOM.render(<h2>Error. Try Again</h2>, document.getElementById('root'));
         } else {
             ReactDOM.render(<h2>Logged In!</h2>, document.getElementById('root'));
