@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+    <title>Blackjack</title>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="site-header d-flex p-2 justify-content-between">
+            <div class="site-title text-center h3">Blackjack - CS 426</div>
+            <button class="btn btn-lg btn-primary">Exit</button>
+        </header>
+        <!-- Dealer Area -->
+        <div class="row d-flex p-2 justify-content-center">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-center username">Dealer</h4>
+                    <div class="text-center hand">Temp text</div>
+                </div>
+            </div>
+        </div>
+        <!-- Betting Area -->
+        <div class="row d-flex p-2 justify-content-center">
+            <div class="d-flex justify-content-center flex-column col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-text d-flex justify-content-around">
+                            <h4 class="text-center">Currently waiting on <span class = "current-player">Username</span> to act.</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-text d-flex justify-content-around">
+                            <button class="btn btn-lg btn-primary">Hit</button>
+                            <button class="btn btn-lg btn-primary">Stand</button>
+                            <button class="btn btn-lg btn-primary">Split</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Players Area -->
+        <div class="row fixed-bottom p-2">
+            <div class="col-lg-12 d-inline-flex justify-content-around players card-group">
+
+                <!-- sample player card -->
+                <div class="card">
+                    <div class="card-top text-center hand">Look <a
+                            href="https://www.htmlsymbols.xyz/games-symbols/playing-cards">here</a> for a list
+                        of all Unicode playing cards.</div>
+                    <div class="card-body">
+                        <h4 class="card-title text-center username">Username</h4>
+                        <p class="card-text text-center bet">
+                            Current Bet: $
+                        </p>
+                        <p class="card-text text-center money">
+                            Total Money: $
+                        </p>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <!-- End Player Area -->
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+</body>
+
+</html>
