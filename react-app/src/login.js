@@ -6,7 +6,6 @@ import {CreateAccount} from './create_account';
 export function Login() {
     const [usernameText, setUsernameText] = useState('');
 
-
     const [passwordText, setPasswordText] = useState('');
 
     function handleChange(event) {
@@ -19,24 +18,23 @@ export function Login() {
 
     async function handleLoginAttempt(event) {
         event.preventDefault();
-        let user_info = await axios({
-            'method': 'get',
-            'url': 'http://localhost:3030/alluserinfo'
-        });
-        
-        for (let i = 0; i < user_info.data.length; i++) {
-            if (user_info.data[i].username === usernameText) {
-                if (user_info.data[i].password === passwordText) {
-                    ReactDOM.render(<h2>Success! Logged in.</h2>, document.getElementById('root'));
-                    return;
-                } else {
-                    ReactDOM.render(<h2>Incorrect Password. Try Again.</h2>, document.getElementById('root'));
-                    return;
+
+        try {
+            let result = await axios({
+                "method": "post",
+                "url": "http://localhost:3030/login",
+                "data": {
+                    "user": usernameText,
+                    "password": passwordText
                 }
-            }
+            });
+            ReactDOM.render(<h2>User {result.data.user} logged in!</h2>, document.getElementById('root'));
+            return;
+        } catch (err) {
+            console.log(err);
+            ReactDOM.render(<h2>{err.message}</h2>, document.getElementById('root'));
+            return;
         }
-        ReactDOM.render(<h2>Username does not exist.</h2>, document.getElementById('root'));
-        return;
     }
 
     function handleCreateButtonClick(event) {

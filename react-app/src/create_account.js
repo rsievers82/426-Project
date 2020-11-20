@@ -2,12 +2,12 @@ import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import {Login} from './login';
 import axios from 'axios';
-// import { get } from 'jquery';
+
 
 export function CreateAccount() {
     const [usernameText, setUsernameText] = useState('');
 
-    const[passwordText, setPasswordText] = useState('');
+    const [passwordText, setPasswordText] = useState('');
 
     function handleChange(event) {
         if (event.target.id === "username") {
@@ -20,29 +20,21 @@ export function CreateAccount() {
     async function handleCreateAccountAttempt(event) {
         event.preventDefault();
 
-        let usernames = await axios({
-            'method': 'get',
-            'url': 'http://localhost:3030/usernames'
-        });
-
-        if (usernames.data.includes(usernameText)) {
-            ReactDOM.render(<h2>Username Taken. Try Again</h2>, document.getElementById('root')); 
+        try {
+            let result = await axios({
+                'method': 'post',
+                'url': 'http://localhost:3030/create',
+                'data': {
+                    'user': usernameText,
+                    'password': passwordText
+                }
+            });
+            ReactDOM.render(<h2>Account created! Username: {result.data.user} Password: {result.data.password}</h2>, document.getElementById('root'));
             return;
-        }
-
-        let result = await axios({
-            'method': 'post',
-            'url': 'http://localhost:3030/users',
-            'data': {
-                'username': usernameText,
-                'password': passwordText
-            }
-        });
-        
-        if (result.request.status === 400) {
-            ReactDOM.render(<h2>Error. Try Again</h2>, document.getElementById('root'));
-        } else {
-            ReactDOM.render(<h2>Logged In!</h2>, document.getElementById('root'));
+        } catch (err) {
+            console.log(err.message);
+            ReactDOM.render(<h2>{err.message}</h2>, document.getElementById('root'));
+            return;
         }
     }
 

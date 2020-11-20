@@ -1,79 +1,133 @@
 const express = require('express');
 
+const app = express();
+
 const cors = require('cors');
 
-const app = express();
+const expressSession = require('express-session');
 
 app.use(cors());
 
-const User = require('./User');
+app.use(expressSession({
+    name: 'BlackjackSessionCookie',
+    secret: 'I am ready for break',
+    resave: false,
+    saveUninitialized: false
+}));
+
+const login_data = require('data-store')({path: process.cwd() + '/data/login.json'});
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-app.get('/users', (req, res) => {
-    res.json(User.getAllIDs());
-    return;
+
+app.post('/create', (req, res) => {
+    let user = req.body.user;
+    let password = req.body.password;
+
+    if (password.length < 8) {
+        res.status(403).send("Password must be at least 8 characters. Try Again.");
+        return;
+    }
+
+    if (login_data.get(user)) {
+        res.status(403).send("Username taken. Try Again.");
+        return;
+    }
+
+    login_data.set(user, {
+        user,
+        password,
+        'money': 5000
+    });
+    res.json(login_data.get(user));
 });
 
-app.get('/usernames', (req, res) => {
-    res.json(User.getAllUsernames());
-    return;
+app.post('/login', (req, res) => {
+    let user = req.body.user;
+    let password = req.body.password;
+
+    let user_data = login_data.get(user);
+    if (user_data == null) {
+        res.status(404).send("Invalid username");
+        return;
+    }
+    if (user_data.password == password) {
+        console.log("User " + user + " credentials valid");
+        req.session.user = user;
+        res.json(user_data);
+        return;
+    }
+    res.status(403).send("Incorrect password");
+});
+
+app.get('/logout', (req, res) => {
+    delete req.session.user;
+    res.json(true);
 })
 
-app.get('/users/:id', (req, res) => {
-    let user = User.findByID(req.params.id);
-    if (user == null) {
+app.put('/users/:user', (req, res) => {
+
+    if (req.session.user == undefined) {
+        res.status(403).send("Login to update account.");
+        return;
+    }
+
+    let current = (req.params.user);
+    if (!login_data.get(current)) {
         res.status(404).send("User Not Found");
         return;
     }
 
-    res.json(user);
-    return;
-});
-
-app.get('/alluserinfo', (req, res) => {
-    res.json(User.getAllUserInfo());
-    return;
-});
-
-app.post('/users', (req, res) => {
-    let {username, password} = req.body;
-
-    let user = User.create(username, password);
-    if (user == null) {
-        res.status(400).send("Bad Request");
+    if (req.params.user !== req.session.user) {
+        res.status(403).send("Cannot update another player's account.");
         return;
     }
 
-    return res.json(user);
+    let {user, password, money} = req.body;
+
+    if (login_data.get(user) && user !== req.session.user) {
+        res.status(404).send("Username taken. Try again.");
+        return;
+    }
+
+    if (password.length < 8) {
+        res.status(403).send("Password must be at least 8 characters.");
+        return;
+    }
+
+    login_data.set(user, {
+        user,
+        password,
+        money
+    });
+
+    if (user !== req.params.user) {
+        login_data.del(req.params.user);
+    }
+
+    res.json(login_data.get(user));
 });
 
-app.put('/users/:id', (req, res) => {
-    let user = User.findByID(req.params.id);
-    if (user == null) {
+app.delete('/users/:user', (req, res) => {
+    if (req.session.user == undefined) {
+        res.status(403).send("Login to delete account");
+        return;
+    }
+
+    let user = req.params.user;
+    if (!login_data.get(user)) {
         res.status(404).send("User Not Found");
         return;
     }
 
-    let {username, password, money} = req.body;
-    user.username = username;
-    user.password = password;
-    user.money = money;
-
-    user.update();
-
-    res.json(user);
-});
-
-app.delete('/users/:id', (req, res) => {
-    let user = User.findByID(req.params.id);
-    if (user == null) {
-        res.status(404).send("User Not Found");
+    if (req.session.user != user) {
+        res.status(403).send("Cannot delete another players account.");
         return;
     }
 
-    user.delete();
+    login_data.del(user);
+    delete req.session.user;
     res.json(true);
 })
 
