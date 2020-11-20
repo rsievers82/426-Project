@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CreateAccount} from './create_account';
+import {Table} from './table';
 
 export function Login() {
     const [usernameText, setUsernameText] = useState('');
@@ -9,7 +10,7 @@ export function Login() {
     const [passwordText, setPasswordText] = useState('');
 
     function handleChange(event) {
-        if (event.target.id === "username") {
+        if (event.target.id === "inputUsername") {
             setUsernameText(event.target.value);
         } else {
             setPasswordText(event.target.value);
@@ -20,20 +21,19 @@ export function Login() {
         event.preventDefault();
 
         try {
-            let result = await axios({
+            await axios({
                 "method": "post",
                 "url": "http://localhost:3030/login",
                 "data": {
                     "user": usernameText,
                     "password": passwordText
                 }
-            });
-            ReactDOM.render(<h2>User {result.data.user} logged in!</h2>, document.getElementById('root'));
+            }).then(response => ReactDOM.render(<Table username={usernameText} money={response.data.money}/>, document.getElementById('root')));
+            
             return;
         } catch (err) {
             console.log(err);
-            ReactDOM.render(<h2>{err.message}</h2>, document.getElementById('root'));
-            return;
+            return <h2>Error</h2>;
         }
     }
 
@@ -43,23 +43,26 @@ export function Login() {
 
     return (
     <div>
-        <header className="heading">
-            <h2>Blackjack</h2>
-            <p>Try to get 21, but don't go over!</p>
-        </header>
-        <div className="input">
-            <form className="container" onSubmit={handleLoginAttempt}>
-                <label for="username">Username</label>
-                <input id="username" name="username" value={usernameText} placeholder="Blackjackplayer123"  onChange={handleChange} required />
-                <label for="password">Password</label>
-                <input id="password" name="password" value={passwordText} placeholder="21isfun" type="password" onChange={handleChange} required />
-                <button className="login_button">Login</button>
-            </form>
+        <form className="form-signin" onSubmit={handleLoginAttempt}>
+        <div className="text-center mb-4">
+            <h1 className="h3 mb-3 font-weight-normal">Blackjack Login</h1>
         </div>
-        <div className="container">
-            <p>Don't have an account?</p>
-            <button onClick={handleCreateButtonClick}>Create one!</button>
+
+        <div className="form-label-group">
+            <input id="inputUsername" className="form-control" placeholder="Username" required autoFocus onChange={handleChange}/>
+            <label htmlFor="inputUsername">Username</label>
         </div>
+
+        <div className="form-label-group">
+            <input type="password" id="inputPassword" className="form-control" placeholder="Password" required onChange={handleChange}/>
+            <label htmlFor="inputPassword">Password</label>
+        </div>
+
+        <button className="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <p className="mt-3 mb-2 text-center">Don't have an account yet?</p>
+        <button onClick={handleCreateButtonClick} className="btn btn-lg btn-primary btn-block">Create Account</button>
+        <p className="mt-5 mb-3 text-muted text-center">Created by Randy Sievers, Emily Fallon, Michael Carter</p>
+        </form>
     </div>
     )
 }

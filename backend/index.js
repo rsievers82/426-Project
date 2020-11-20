@@ -110,6 +110,7 @@ app.put('/users/:user', (req, res) => {
 });
 
 app.delete('/users/:user', (req, res) => {
+
     if (req.session.user == undefined) {
         res.status(403).send("Login to delete account");
         return;
@@ -129,8 +130,13 @@ app.delete('/users/:user', (req, res) => {
     login_data.del(user);
     delete req.session.user;
     res.json(true);
-})
+});
 
+app.delete('/users', (req, res) => {
+    login_data.clear();
+    res.json(true);
+    
+})
 
 const port = 3030;
 app.listen(port, () => {

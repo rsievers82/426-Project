@@ -10,7 +10,7 @@ export function CreateAccount() {
     const [passwordText, setPasswordText] = useState('');
 
     function handleChange(event) {
-        if (event.target.id === "username") {
+        if (event.target.id === "inputUsername") {
             setUsernameText(event.target.value);
         } else {
             setPasswordText(event.target.value);
@@ -21,7 +21,7 @@ export function CreateAccount() {
         event.preventDefault();
 
         try {
-            let result = await axios({
+            await axios({
                 'method': 'post',
                 'url': 'http://localhost:3030/create',
                 'data': {
@@ -29,7 +29,7 @@ export function CreateAccount() {
                     'password': passwordText
                 }
             });
-            ReactDOM.render(<h2>Account created! Username: {result.data.user} Password: {result.data.password}</h2>, document.getElementById('root'));
+            ReactDOM.render(<Login />, document.getElementById('root'));
             return;
         } catch (err) {
             console.log(err.message);
@@ -43,23 +43,25 @@ export function CreateAccount() {
     }
 
     return (
-    <div className="createAccount">
-        <div className="input">
-        <div className="heading">
-            <h2>Create An Account</h2>
+    <form className="form-signin" onSubmit={handleCreateAccountAttempt}>
+        <div className="text-center mb-4">
+            <h1 className="h3 mb-3 font-weight-normal">New User Registration</h1>
         </div>
-        <form className="container" onSubmit={handleCreateAccountAttempt}>
-            <label for="username">New Username</label>
-            <input id="username" name="username" value={usernameText} placeholder="Blackjackplayer123" onChange={handleChange} required />
-            <label for="password">New Password</label>
-            <input id="password" name="password" value={passwordText} placeholder="21isfun" type="password" onChange={handleChange} required />
-            <button className="login_button">Create Account</button>
-        </form>
+
+        <div className="form-label-group">
+            <input id="inputUsername" className="form-control" placeholder="Username" required autoFocus onChange={handleChange}/>
+            <label htmlFor="inputUsername">Username</label>
         </div>
-        <div className="container">
-            <p>Already have an account?</p>
-            <button onClick={handleLoginButtonClick}>Log in</button>
+
+        <div className="form-label-group">
+            <input type="password" id="inputPassword" className="form-control" placeholder="Password" required onChange={handleChange}/>
+            <label htmlFor="inputPassword">Password</label>
         </div>
-    </div>
+
+        <button className="btn btn-lg btn-primary btn-block" type="submit">Create Account</button>
+
+        <button onClick={handleLoginButtonClick} className="btn btn-lg btn-primary btn-block">Home</button>
+        <p className="mt-5 mb-3 text-muted text-center">Created by Randy Sievers, Emily Fallon, Michael Carter</p>
+    </form>
     ); 
 }

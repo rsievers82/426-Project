@@ -1,0 +1,33 @@
+{
+  "name": "426-project",
+  "version": "1.0.0",
+  "description": "Final Project for Comp 426 Group: Final Project Crew Creating an online Blackjack app with a database storing player login info and money",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./backend/index",
+    "dev": "nodemon ./backend/index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rsievers82/426-Project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rsievers82/426-Project/issues"
+  },
+  "homepage": "https://github.com/rsievers82/426-Project#readme",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "bulma": "^0.9.1",
+    "concurrently": "^5.3.0",
+    "cors": "^2.8.5",
+    "data-store": "^4.0.3",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "jquery": "^3.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}

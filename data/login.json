@@ -1,1 +1,22 @@
-{}
+{
+  "Randy": {
+    "user": "Randy",
+    "password": "Sievers82",
+    "money": 5000
+  },
+  "newuser": {
+    "user": "newuser",
+    "password": "password",
+    "money": 5000
+  },
+  "third": {
+    "user": "third",
+    "password": "aaaaaaaa",
+    "money": 5000
+  },
+  "fourth": {
+    "user": "fourth",
+    "password": "bbbbbbbb",
+    "money": 5000
+  }
+}
