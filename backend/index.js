@@ -20,6 +20,10 @@ const login_data = require('data-store')({path: process.cwd() + '/data/login.jso
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
+app.get('/users/:user', (req, res) => {
+    let user = login_data.get(req.params.user);
+    res.json(user);
+})
 
 app.post('/create', (req, res) => {
     let user = req.body.user;
@@ -84,7 +88,13 @@ app.put('/users/:user', (req, res) => {
         return;
     }
 
-    let {user, password, money} = req.body;
+    let user;
+    let password;
+    let money;
+
+    req.body.user ? user = req.body.user : user = req.params.user;
+    req.body.password ? password = req.body.password : password = login_data.get(req.params.user).password;
+    req.body.money ? money = req.body.money : money = login_data.get(req.params.user).money;
 
     if (login_data.get(user) && user !== req.session.user) {
         res.status(404).send("Username taken. Try again.");
@@ -96,6 +106,10 @@ app.put('/users/:user', (req, res) => {
         return;
     }
 
+    if (money < 0) {
+        money = 0;
+    }
+
     login_data.set(user, {
         user,
         password,
@@ -104,6 +118,7 @@ app.put('/users/:user', (req, res) => {
 
     if (user !== req.params.user) {
         login_data.del(req.params.user);
+        req.session.user = user;
     }
 
     res.json(login_data.get(user));

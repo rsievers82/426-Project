@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -88,6 +90,11 @@ class App extends React.Component {
   }
   
   placeBet() {
+    let userMoney = axios({
+      'method': 'get',
+      "url": `http://localhost:3030/users/${this.props.username}`
+    }).then(response => response.data.money);
+
     const currentBet = this.state.inputValue;
 
     if (currentBet > this.state.wallet) {
@@ -96,7 +103,14 @@ class App extends React.Component {
       this.setState({ message: 'Whole numbers only.' });
     } else {
       // Deduct current bet from wallet
-      const wallet = this.state.wallet - currentBet;
+      let updatedMoney = axios({
+        'method': 'put',
+        'url': `http://localhost:3030/users/${this.props.username}`,
+        'data': {
+          'money': userMoney - currentBet 
+        }
+      }).then(response => response.data.money);
+      const wallet = updatedMoney;
       this.setState({ wallet, inputValue: '', currentBet });
     }
   }
