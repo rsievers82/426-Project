@@ -1,7 +1,9 @@
+import reactBulmaComponents from 'https://cdn.skypack.dev/react-bulma-components@3.4.0';
+
 class App extends React.Component {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       deck: [],
       dealer: null,
@@ -15,34 +17,34 @@ class App extends React.Component {
   }
 
   generateDeck() {
-    const cards = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
-    const suits = ['♦','♣','♥','♠'];
+    const cards = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
+    const suits = ['♦', '♣', '♥', '♠'];
     const deck = [];
     for (let i = 0; i < cards.length; i++) {
       for (let j = 0; j < suits.length; j++) {
-        deck.push({number: cards[i], suit: suits[j]});
+        deck.push({ number: cards[i], suit: suits[j] });
       }
     }
     return deck;
   }
-  
+
   dealCards(deck) {
     const playerCard1 = this.getRandomCard(deck);
     const dealerCard1 = this.getRandomCard(playerCard1.updatedDeck);
-    const playerCard2 = this.getRandomCard(dealerCard1.updatedDeck);    
+    const playerCard2 = this.getRandomCard(dealerCard1.updatedDeck);
     const playerStartingHand = [playerCard1.randomCard, playerCard2.randomCard];
-    const dealerStart = [dealerCard1.randomCard, {}];
-    
+    const dealerStartingHand = [dealerCard1.randomCard, {}];
+
     const player = {
       cards: playerStartingHand,
       count: this.getCount(playerStartingHand)
     };
     const dealer = {
-      cards: dealerStart,
-      count: this.getCount(dealerStart)
+      cards: dealerStartingHand,
+      count: this.getCount(dealerStartingHand)
     };
-    
-    return {updatedDeck: playerCard2.updatedDeck, player, dealer};
+
+    return { updatedDeck: playerCard2.updatedDeck, player, dealer };
   }
 
   startNewGame(type) {
@@ -60,7 +62,7 @@ class App extends React.Component {
           message: null
         });
       } else {
-        this.setState({ message: 'Game over! Please start a new game.' });
+        this.setState({ message: 'Game over! You are broke! Please start a new game.' });
       }
     } else {
       const deck = this.generateDeck();
@@ -78,7 +80,7 @@ class App extends React.Component {
       });
     }
   }
-       
+
   getRandomCard(deck) {
     const updatedDeck = deck;
     const randomIndex = Math.floor(Math.random() * updatedDeck.length);
@@ -86,21 +88,21 @@ class App extends React.Component {
     updatedDeck.splice(randomIndex, 1);
     return { randomCard, updatedDeck };
   }
-  
+
   placeBet() {
     const currentBet = this.state.inputValue;
 
     if (currentBet > this.state.wallet) {
       this.setState({ message: 'Insufficient funds to bet that amount.' });
     } else if (currentBet % 1 !== 0) {
-      this.setState({ message: 'Whole numbers only.' });
+      this.setState({ message: 'Please bet whole numbers only.' });
     } else {
       // Deduct current bet from wallet
       const wallet = this.state.wallet - currentBet;
       this.setState({ wallet, inputValue: '', currentBet });
     }
   }
-  
+
   hit() {
     if (!this.state.gameOver) {
       if (this.state.currentBet) {
@@ -121,14 +123,14 @@ class App extends React.Component {
       this.setState({ message: 'Game over! Please start a new game.' });
     }
   }
-  
+
   dealerDraw(dealer, deck) {
     const { randomCard, updatedDeck } = this.getRandomCard(deck);
     dealer.cards.push(randomCard);
     dealer.count = this.getCount(dealer.cards);
     return { dealer, updatedDeck };
   }
-  
+
   getCount(cards) {
     const rearranged = [];
     cards.forEach(card => {
@@ -137,8 +139,11 @@ class App extends React.Component {
       } else if (card.number) {
         rearranged.unshift(card);
       }
+
+
+      // (card.number === 'A') ? rearranged.push(card) : rearranged.unshift(card);
     });
-    
+
     return rearranged.reduce((total, card) => {
       if (card.number === 'J' || card.number === 'Q' || card.number === 'K') {
         return total + 10;
@@ -149,9 +154,10 @@ class App extends React.Component {
       }
     }, 0);
   }
-  
+
   stand() {
     if (!this.state.gameOver) {
+      // Show dealer's 2nd card
       const randomCard = this.getRandomCard(this.state.deck);
       let deck = randomCard.updatedDeck;
       let dealer = this.state.dealer;
@@ -159,7 +165,8 @@ class App extends React.Component {
       dealer.cards.push(randomCard.randomCard);
       dealer.count = this.getCount(dealer.cards);
 
-      while(dealer.count < 17) {
+      // Keep drawing cards until count is 17 or more
+      while (dealer.count < 17) {
         const draw = this.dealerDraw(dealer, deck);
         dealer = draw.dealer;
         deck = draw.updatedDeck;
@@ -177,7 +184,7 @@ class App extends React.Component {
         const winner = this.getWinner(dealer, this.state.player);
         let wallet = this.state.wallet;
         let message;
-        
+
         if (winner === 'dealer') {
           message = 'Dealer wins...';
         } else if (winner === 'player') {
@@ -187,20 +194,20 @@ class App extends React.Component {
           wallet += this.state.currentBet;
           message = 'Push.';
         }
-        
+
         this.setState({
-          deck, 
+          deck,
           dealer,
           wallet,
           gameOver: true,
           message
         });
-      } 
+      }
     } else {
       this.setState({ message: 'Game over! Please start a new game.' });
     }
   }
-  
+
   getWinner(dealer, player) {
     if (dealer.count > player.count) {
       return 'dealer';
@@ -210,27 +217,27 @@ class App extends React.Component {
       return 'push';
     }
   }
-  
+
   inputChange(e) {
     const inputValue = +e.target.value;
-    this.setState({inputValue});
+    this.setState({ inputValue });
   }
-  
+
   handleKeyDown(e) {
     const enter = 13;
     console.log(e.keyCode);
-    
+
     if (e.keyCode === enter) {
       this.placeBet();
     }
   }
-  
+
   componentWillMount() {
     this.startNewGame();
     const body = document.querySelector('body');
     body.addEventListener('keydown', this.handleKeyDown.bind(this));
   }
-  
+
   render() {
     let dealerCount;
     const card1 = this.state.dealer.cards[0].number;
@@ -248,66 +255,107 @@ class App extends React.Component {
     }
 
     return (
+
       <div>
-        <div className="buttons">
-          <button onClick={() => {this.startNewGame()}}>New Game</button>
-          <button onClick={() => {this.hit()}}>Hit</button>
-          <button onClick={() => {this.stand()}}>Stand</button>
+        <div className="field">
+          <div className="control">
+            <h1 className="title is-1">Blackjack</h1>
+          </div>
         </div>
-        
-        <p>Wallet: ${ this.state.wallet }</p>
+
+        <h1 className="title is-4">Wallet: ${this.state.wallet}</h1>
         {
-          !this.state.currentBet ? 
-          <div className="input-bet">            
-            <form>
-              <input type="text" name="bet" placeholder="" value={this.state.inputValue} onChange={this.inputChange.bind(this)}/>
-            </form>
-            <button onClick={() => {this.placeBet()}}>Place Bet</button>
-          </div>
-          : null
+          !this.state.currentBet ?
+            <div className="field has-addons">
+              <div className="control">
+                <input className="input" type="text" value={this.state.inputValue} onChange={this.inputChange.bind(this)} />
+              </div>
+              <div class="control">
+                <a className="button is-warning" onClick={() => { this.placeBet() }}>Place Bet</a>
+              </div>
+            </div>
+            : null
         }
+        <div className="field">
+          <div className="control">
+          </div>
+        </div>
         {
+
           this.state.gameOver ?
-          <div className="buttons">
-            <button onClick={() => {this.startNewGame('continue')}}>Continue</button>
-          </div>
-          : null
+            <div className="buttons">
+              <a className="button" onClick={() => { this.startNewGame('continue') }}>Continue</a>
+            </div>
+            : null
         }
-        <p>Your Hand ({ this.state.player.count })</p>
-        <table className="cards">
-          <tr>
-            { this.state.player.cards.map((card, i) => {
-              return <Card key={i} number={card.number} suit={card.suit}/>
-            }) }
-          </tr>
-        </table>
-        
-        <p>Dealer's Hand ({ this.state.dealer.count })</p>
-        <table className="cards">
-          <tr>
-            { this.state.dealer.cards.map((card, i) => {
-              return <Card key={i} number={card.number} suit={card.suit}/>;
-            }) }
-          </tr>
-        </table>
-        
-        <p>{ this.state.message }</p>
+        <div className="field">
+          <div className="control">
+            <h1 className="title is-4">Your Hand ({this.state.player.count})</h1>
+          </div>
+        </div>
+        <div className="field">
+          <div className="control">
+            <table className="cards">
+              <tr>
+                {this.state.player.cards.map((card, i) => {
+                  return <Card key={i} number={card.number} suit={card.suit} />
+                })}
+              </tr>
+
+            </table>
+          </div>
+        </div>
+
+        <div className="field">
+          <div className="control">
+            <h1 className="title is-4">Dealer's Hand ({this.state.dealer.count})</h1>
+          </div>
+        </div>
+
+        <div className="field">
+          <div className="control">
+            <table className="cards">
+              <tr>
+                {this.state.dealer.cards.map((card, i) => {
+                  return <Card key={i} number={card.number} suit={card.suit} />;
+                })}
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div className="field">
+          <div className="control">
+            <p className="mt-6">{this.state.message}</p>
+          </div>
+        </div>
+
+        <div className="field">
+          <div className="control">
+            <div className="buttons">
+              <a className="button" button onClick={() => { this.startNewGame() }}>New Game</a>
+              <a className="button is-danger" button onClick={() => { this.hit() }}>Hit</a>
+              <a className="button is-success" button onClick={() => { this.stand() }}>Stand</a>
+            </div>
+          </div>
+        </div>
       </div>
     );
+
   }
+
 };
 
 const Card = ({ number, suit }) => {
   const combo = (number) ? `${number}${suit}` : null;
   const color = (suit === '♦' || suit === '♥') ? 'card-red' : 'card';
-  
+
   return (
     <td>
       <div className={color}>
-        { combo }
+        {combo}
       </div>
     </td>
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('main'));
+ReactDOM.render(<App />, document.getElementById('root'));
