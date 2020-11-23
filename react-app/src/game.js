@@ -1,4 +1,8 @@
+<<<<<<< HEAD:logic/game.js
 import reactBulmaComponents from 'https://cdn.skypack.dev/react-bulma-components@3.4.0';
+=======
+import axios from 'axios';
+>>>>>>> bdf5600318e5a47db15a0f75bc49008c5aee8a38:react-app/src/game.js
 
 class App extends React.Component {
   constructor(props) {
@@ -90,6 +94,11 @@ class App extends React.Component {
   }
 
   placeBet() {
+    let userMoney = axios({
+      'method': 'get',
+      "url": `http://localhost:3030/users/${this.props.username}`
+    }).then(response => response.data.money);
+
     const currentBet = this.state.inputValue;
 
     if (currentBet > this.state.wallet) {
@@ -98,7 +107,14 @@ class App extends React.Component {
       this.setState({ message: 'Please bet whole numbers only.' });
     } else {
       // Deduct current bet from wallet
-      const wallet = this.state.wallet - currentBet;
+      let updatedMoney = axios({
+        'method': 'put',
+        'url': `http://localhost:3030/users/${this.props.username}`,
+        'data': {
+          'money': userMoney - currentBet 
+        }
+      }).then(response => response.data.money);
+      const wallet = updatedMoney;
       this.setState({ wallet, inputValue: '', currentBet });
     }
   }
