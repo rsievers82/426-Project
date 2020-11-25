@@ -22,12 +22,13 @@ export function CreateAccount() {
 
         try {
             await axios({
-                'method': 'post',
-                'url': 'http://localhost:3030/create',
-                'data': {
+                method: 'post',
+                url: 'http://localhost:3030/create',
+                data: {
                     'user': usernameText,
                     'password': passwordText
-                }
+                },
+                withCredentials: true
             });
             ReactDOM.render(<Login />, document.getElementById('root'));
             return;

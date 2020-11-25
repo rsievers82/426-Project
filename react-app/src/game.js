@@ -1,10 +1,11 @@
-<<<<<<< HEAD:logic/game.js
-import reactBulmaComponents from 'https://cdn.skypack.dev/react-bulma-components@3.4.0';
-=======
+// import reactBulmaComponents from 'reactBulmaComponents';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import axios from 'axios';
->>>>>>> bdf5600318e5a47db15a0f75bc49008c5aee8a38:react-app/src/game.js
+import { Login } from './login';
+// import './game.css';
 
-class App extends React.Component {
+export class App extends React.Component {
   constructor(props) {
     super(props);
 
@@ -12,12 +13,22 @@ class App extends React.Component {
       deck: [],
       dealer: null,
       player: null,
-      wallet: 0,
+      wallet: this.props.money,
       inputValue: '',
       currentBet: null,
       gameOver: false,
-      message: null
+      message: null,
+      splitHand: null
     };
+    
+  }
+
+  handleLogoutButtonClick(event) {
+    axios({
+      "method": "get",
+      "url": "http://localhost:3030/logout"
+  });
+  ReactDOM.render(<Login />, document.getElementById('root'));
   }
 
   generateDeck() {
@@ -66,7 +77,10 @@ class App extends React.Component {
           message: null
         });
       } else {
-        this.setState({ message: 'Game over! You are broke! Please start a new game.' });
+        this.setState({ 
+          message: 'Game over! You are broke!' ,
+          gameOver: true
+        });
       }
     } else {
       const deck = this.generateDeck();
@@ -76,7 +90,6 @@ class App extends React.Component {
         deck: updatedDeck,
         dealer,
         player,
-        wallet: 100,
         inputValue: '',
         currentBet: null,
         gameOver: false,
@@ -93,30 +106,48 @@ class App extends React.Component {
     return { randomCard, updatedDeck };
   }
 
-  placeBet() {
-    let userMoney = axios({
-      'method': 'get',
-      "url": `http://localhost:3030/users/${this.props.username}`
-    }).then(response => response.data.money);
-
+  async placeBet() {
     const currentBet = this.state.inputValue;
 
-    if (currentBet > this.state.wallet) {
+    if (currentBet <= 0) {
+       this.setState({ message: 'Bet must be greater than $0.' });
+    } else if (currentBet > this.state.wallet) {
       this.setState({ message: 'Insufficient funds to bet that amount.' });
     } else if (currentBet % 1 !== 0) {
       this.setState({ message: 'Please bet whole numbers only.' });
+    } else if (typeof this.state.inputValue !== 'number') {
+      this.setState({ message: 'Bet must be a number.' });
     } else {
       // Deduct current bet from wallet
-      let updatedMoney = axios({
-        'method': 'put',
-        'url': `http://localhost:3030/users/${this.props.username}`,
-        'data': {
-          'money': userMoney - currentBet 
+      let result = await axios({
+        method: 'put',
+        url: `http://localhost:3030/users/${this.props.username}`,
+        withCredentials: true,
+        data: {
+          'money': this.state.wallet - currentBet
         }
-      }).then(response => response.data.money);
-      const wallet = updatedMoney;
-      this.setState({ wallet, inputValue: '', currentBet });
+      });
+      this.setState({ wallet: result.data.money, inputValue: '', currentBet });
+
+      if (this.getCount(this.state.player.cards) === 21) {
+        let result = await axios({
+          method: 'put',
+          url: `http://localhost:3030/users/${this.props.username}`,
+          withCredentials: true,
+          data: {
+            'money': this.state.wallet + this.state.currentBet * 3
+          }
+        });
+        this.setState({
+          message: "Blackjack!",
+          wallet: result.data.money
+        });
+        setTimeout(() => {
+          this.startNewGame()
+        }, 4000);
+      }
     }
+    this.setState({ message: '' });
   }
 
   hit() {
@@ -127,16 +158,124 @@ class App extends React.Component {
         player.cards.push(randomCard);
         player.count = this.getCount(player.cards);
 
-        if (player.count > 21) {
+        if (player.count === 21) {
+          this.setState({ message: "Blackjack!" });
+          this.stand();
+        } else if (player.count > 21) {
           this.setState({ player, gameOver: true, message: 'BUST!' });
+          axios({
+            method: 'put',
+            url: `http://localhost:3030/users/${this.props.username}`,
+            withCredentials: true,
+            data: {
+              "money": this.state.wallet
+            }
+          });
+          
+          setTimeout(() => {
+            this.startNewGame('continue');
+          }, 4000);
         } else {
           this.setState({ deck: updatedDeck, player });
         }
       } else {
-        this.setState({ message: 'Please place bet.' });
+        this.setState({ message: 'Please place your bet.' });
       }
     } else {
-      this.setState({ message: 'Game over! Please start a new game.' });
+      this.setState({ message: 'You are out of money.' });
+    }
+  }
+
+
+  async doubleDown() {
+    if (!this.state.gameOver) {
+      if (this.state.currentBet) {
+        if (this.state.player.cards.length === 2) {
+          let currentBet = this.state.currentBet;
+          let result = await axios({
+            method: 'put',
+            url: `http://localhost:3030/users/${this.props.username}`,
+            withCredentials: true,
+            data: {
+              'money': this.state.wallet - currentBet
+            }
+          });
+          currentBet *= 2;
+          this.setState({ 
+            wallet: result.data.money, 
+            currentBet 
+          });
+          this.hit();
+          if (this.getCount(this.state.player.cards) < 21) {
+            this.stand();
+          }
+        } else {
+          this.setState({ message: "You cannot double down now." });
+        }
+      } else {
+        this.setState({ message: "Please place your bet." })
+      }
+    } else {
+      this.setState({ message: "You are out of money." })
+    }
+  }
+
+
+  async split() {
+    if (!this.state.gameOver) {
+      if (this.state.currentBet) {
+        if (this.state.player.cards.length === 2) {
+          if (this.state.player.cards[0].number === this.state.player.cards[1].number) {
+            // split the hands
+            let leftHand = {
+              cards: [this.state.player.cards[0]],
+              currentBet: this.state.currentBet
+            };
+            let rightHand = {
+              cards: [this.state.player.cards[1]],
+              currentBet: this.state.currentBet
+            };
+            // add a second equal bet to the second hand
+            let result = await axios({
+              method: 'put',
+              url: `http://localhost:3030/users/${this.props.username}`,
+              withCredentials: true,
+              data: {
+                'money': this.state.wallet - this.state.currentBet
+              }
+            });
+            // pull a card for each hand
+            let leftCardPulled = this.getRandomCard(this.state.deck)
+            leftHand.cards.push(leftCardPulled.randomCard);
+            let rightCardPulled = this.getRandomCard(leftCardPulled.updatedDeck);
+            rightHand.cards.push(rightCardPulled.randomCard);
+            // update state
+            this.setState({
+              deck: rightCardPulled.updatedDeck,
+              player: {
+                cards: leftHand.cards,
+                count: this.getCount(leftHand.cards)
+              },
+              wallet: result.data.money,
+              currentBet: this.state.currentBet * 2,
+              splitHand: {
+                cards: rightHand.cards,
+                count: this.getCount(rightHand.cards),
+                currentBet: this.state.currentBet / 2
+              }
+            });
+            
+          } else {
+            this.setState({ message: "Your cards must have the same value to split." });
+          }
+        } else {
+          this.setState({ message: "You cannot split now." });
+        }
+      } else {
+        this.setState({ message: "Please place your bet." })
+      }
+    } else {
+      this.setState({ message: "You are out of money." })
     }
   }
 
@@ -155,8 +294,6 @@ class App extends React.Component {
       } else if (card.number) {
         rearranged.unshift(card);
       }
-
-
       // (card.number === 'A') ? rearranged.push(card) : rearranged.unshift(card);
     });
 
@@ -171,7 +308,7 @@ class App extends React.Component {
     }, 0);
   }
 
-  stand() {
+  async stand() {
     if (!this.state.gameOver) {
       // Show dealer's 2nd card
       const randomCard = this.getRandomCard(this.state.deck);
@@ -183,19 +320,29 @@ class App extends React.Component {
 
       // Keep drawing cards until count is 17 or more
       while (dealer.count < 17) {
-        const draw = this.dealerDraw(dealer, deck);
-        dealer = draw.dealer;
-        deck = draw.updatedDeck;
+        // setTimeout(() => {
+          const draw = this.dealerDraw(dealer, deck);
+          dealer = draw.dealer;
+          deck = draw.updatedDeck;
+        // }, 2000);
       }
 
       if (dealer.count > 21) {
+        let result = await axios({
+          method: 'put',
+          url: `http://localhost:3030/users/${this.props.username}`,
+          withCredentials: true,
+          data: {
+            "money": this.state.wallet + this.state.currentBet * 2
+          }
+        });
         this.setState({
           deck,
           dealer,
-          wallet: this.state.wallet + this.state.currentBet * 2,
-          gameOver: true,
+          wallet: result.data.money,
           message: 'Dealer bust! You win!'
         });
+
       } else {
         const winner = this.getWinner(dealer, this.state.player);
         let wallet = this.state.wallet;
@@ -204,10 +351,26 @@ class App extends React.Component {
         if (winner === 'dealer') {
           message = 'Dealer wins...';
         } else if (winner === 'player') {
-          wallet += this.state.currentBet * 2;
+          let result = await axios({
+            method: 'put',
+            url: `http://localhost:3030/users/${this.props.username}`,
+            withCredentials: true,
+            data: {
+              "money": this.state.wallet + this.state.currentBet * 2
+            }
+          });
+          wallet = result.data.money;
           message = 'You win!';
         } else {
-          wallet += this.state.currentBet;
+          let result = await axios({
+            method: 'put',
+            url: `http://localhost:3030/users/${this.props.username}`,
+            withCredentials: true,
+            data: {
+              "money": this.state.wallet + this.state.currentBet
+            }
+          });
+          wallet = result.data.money;
           message = 'Push.';
         }
 
@@ -215,10 +378,15 @@ class App extends React.Component {
           deck,
           dealer,
           wallet,
-          gameOver: true,
+          gameOver: this.state.gameOver,
           message
         });
+
       }
+      setTimeout(() => {
+        this.startNewGame();
+      }, 4000);
+
     } else {
       this.setState({ message: 'Game over! Please start a new game.' });
     }
@@ -241,8 +409,6 @@ class App extends React.Component {
 
   handleKeyDown(e) {
     const enter = 13;
-    console.log(e.keyCode);
-
     if (e.keyCode === enter) {
       this.placeBet();
     }
@@ -271,90 +437,118 @@ class App extends React.Component {
     }
 
     return (
-
-      <div>
-        <div className="field">
-          <div className="control">
-            <h1 className="title is-1">Blackjack</h1>
-          </div>
-        </div>
-
-        <h1 className="title is-4">Wallet: ${this.state.wallet}</h1>
-        {
-          !this.state.currentBet ?
-            <div className="field has-addons">
-              <div className="control">
-                <input className="input" type="text" value={this.state.inputValue} onChange={this.inputChange.bind(this)} />
+      <div className="container-fluid">
+      {/* <!-- Header --> */}
+      <header className="site-header d-flex p-2 justify-content-between">
+          <div className="site-title text-center h3">Blackjack - CS 426</div>
+          <button className="btn btn-lg btn-primary" onClick={this.handleLogoutButtonClick.bind(this)}>Logout</button>
+      </header>
+      {/* <!-- Dealer Area --> */}
+      <div className="row d-flex p-2 justify-content-center">
+          <div className="card">
+              <div className="card-body">
+                  <h4 className="card-title text-center username">Dealer</h4>
+                  <div className="text-center hand">
+                    <table className="cards">
+                      {
+                        this.state.currentBet ?
+                        <tbody>
+                        <tr>
+                          {this.state.dealer.cards.map((card, i) => {
+                            return <Card key={i} number={card.number} suit={card.suit} />;
+                          })}
+                          <p>({this.state.dealer.count})</p>
+                        </tr>
+                      </tbody>
+                      : null
+                      }
+                    </table>
+                  </div>
               </div>
-              <div class="control">
-                <a className="button is-warning" onClick={() => { this.placeBet() }}>Place Bet</a>
-              </div>
-            </div>
-            : null
-        }
-        <div className="field">
-          <div className="control">
           </div>
-        </div>
-        {
-
-          this.state.gameOver ?
-            <div className="buttons">
-              <a className="button" onClick={() => { this.startNewGame('continue') }}>Continue</a>
-            </div>
-            : null
-        }
-        <div className="field">
-          <div className="control">
-            <h1 className="title is-4">Your Hand ({this.state.player.count})</h1>
-          </div>
-        </div>
-        <div className="field">
-          <div className="control">
-            <table className="cards">
-              <tr>
-                {this.state.player.cards.map((card, i) => {
-                  return <Card key={i} number={card.number} suit={card.suit} />
-                })}
-              </tr>
-
-            </table>
-          </div>
-        </div>
-
-        <div className="field">
-          <div className="control">
-            <h1 className="title is-4">Dealer's Hand ({this.state.dealer.count})</h1>
-          </div>
-        </div>
-
-        <div className="field">
-          <div className="control">
-            <table className="cards">
-              <tr>
-                {this.state.dealer.cards.map((card, i) => {
-                  return <Card key={i} number={card.number} suit={card.suit} />;
-                })}
-              </tr>
-            </table>
-          </div>
-        </div>
-        <div className="field">
-          <div className="control">
-            <p className="mt-6">{this.state.message}</p>
-          </div>
-        </div>
-
-        <div className="field">
-          <div className="control">
-            <div className="buttons">
-              <a className="button" button onClick={() => { this.startNewGame() }}>New Game</a>
-              <a className="button is-danger" button onClick={() => { this.hit() }}>Hit</a>
-              <a className="button is-success" button onClick={() => { this.stand() }}>Stand</a>
-            </div>
-          </div>
-        </div>
       </div>
+      {/* <!-- Betting Area --> */}
+      <div className="row d-flex p-2 justify-content-center">
+          <div className="d-flex justify-content-center flex-column col-md-3">
+              <div className="card">
+                  <div className="card-body">
+                      <div className="card-text d-flex justify-content-around">
+                      {
+                        !this.state.currentBet ?
+                        <div className="field has-addons">
+                          <div className="control">
+                            <input className="input" type="text" value={this.state.inputValue} onChange={this.inputChange.bind(this)} />
+                          </div>
+                          <div className="control">
+                          <button className="button is-warning" onClick={() => { this.placeBet() }}>Place Bet</button>
+                          </div>
+                        </div>
+                        : null
+                      }                      
+                    </div>
+                  </div>
+              </div>
+              <div className="card">
+                  <div className="card-body">
+                      <div className="card-text d-flex justify-content-around">
+                          <button className="btn btn-lg btn-primary" onClick={this.hit.bind(this)}>Hit</button>
+                          <button className="btn btn-lg btn-primary" onClick={this.stand.bind(this)}>Stand</button>
+                          <button className="btn btn-lg btn-primary" onClick={this.split.bind(this)}>Split</button>
+                          <button className="btn btn-lg btn-primary" onClick={this.doubleDown.bind(this)}>Double Down</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      {/* <!-- Players Area --> */}
+      <div className="row fixed-bottom p-2">
+          <div className="col-lg-12 d-inline-flex justify-content-around players card-group">
+                <table className="cards">
+                  {
+                    this.state.currentBet ? 
+                    <tbody>
+                    <tr>
+                    {
+                      this.state.splitHand ?
+                      <p>({this.state.player.count})</p>
+                      : null
+                      }
+                    {this.state.player.cards.map((card, i) => {
+                      return <Card key={i} number={card.number} suit={card.suit} />
+                      })}
+                      {
+                      !this.state.splitHand ?
+                      <p>({this.state.player.count})</p>
+                      : null
+                      }
+                    </tr>
+                    </tbody>
+                    : null
+                  }
+                </table>
+              {/* <!-- sample player card --> */}
+              <div className="card">
+                  <div className="card-top text-center hand">Look <a
+                          href="https://www.htmlsymbols.xyz/games-symbols/playing-cards">here</a> for a list
+                      of all Unicode playing cards.</div>
+                  <div className="card-body">
+                      <h4 className="card-title text-center username">{this.props.username}</h4>
+                      <p className="card-text text-center bet">
+                          Current Bet: ${this.state.currentBet}
+                      </p>
+                      <p className="card-text text-center money">
+                          Total Money: ${this.state.wallet}
+                      </p>
+                  </div>
+              </div>
+              <p className="mt-6">{this.state.message}</p>
+
+
+          </div>
+      </div>
+      {/* <!-- End Player Area --> */}
+  </div>
     );
 
   }
@@ -373,5 +567,3 @@ const Card = ({ number, suit }) => {
     </td>
   );
 };
-
-ReactDOM.render(<App />, document.getElementById('root'));
