@@ -1,54 +1,53 @@
-import axios from 'axios';
-import React, {useState} from 'react';
+// import axios from 'axios';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { Login } from './login';
 
-export async function Leaderboard() {
-    let userInfo = [];
+export function Leaderboard(props) {
+    const players = props.players;
 
-    let users = await axios({
-        method: 'get',
-        url: 'http://localhost:3030/users',
-        withCredentials: true
-    });
+    function handleLoginButtonClick(event) {
+        ReactDOM.render(<Login />, document.getElementById('root'));
+    }
 
-    users.map(user => {
-        let user = await axios({
-            method: 'get',
-            url: `http://localhost:3030/users/${user}`,
-            withCredentials: true
-        });
-        userInfo.push({
-            user: user.data.user,
-            money: user.data.money
-        });
-    });
+    const tableRows = players.map(player => {
+        return (
+            <tr>
+                <td>
+                    {players.findIndex(p => p.user === player.user) + 1}
+                </td>
+                <td>
+                    {player.user}
+                </td>
+                <td>
+                    {player.money}
+                </td>
+            </tr>
+        )
+    });   
+    
 
     return (
-        <table>
-            <thead>
-                <tr>
-                    <td>
-                        User
-                    </td>
-                    <td>
-                        Money
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                {
-                    userInfo.forEach(user => {
-                        <tr>
-                            <td>
-                                {user.user}
-                            </td>
-                            <td>
-                                {user.money}
-                            </td>
-                        </tr>
-                    })
-                }
-            </tbody>
-        </table>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <td>
+
+                        </td>
+                        <td>
+                            User
+                        </td>
+                        <td>
+                            Money
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tableRows}
+                </tbody>
+            </table>
+            <button className="btn btn-lg btn-primary btn-block" onClick={handleLoginButtonClick}>Home</button>
+        </div>
     )
 }

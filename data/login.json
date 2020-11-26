@@ -2,7 +2,7 @@
   "newuser": {
     "user": "newuser",
     "password": "Sandybeach82",
-    "money": 6000
+    "money": 5700
   },
   "third": {
     "user": "third",
@@ -12,6 +12,6 @@
   "fourth": {
     "user": "fourth",
     "password": "bbbbbbbb",
-    "money": 5000
+    "money": 4450
   }
 }

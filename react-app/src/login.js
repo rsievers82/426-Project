@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom';
 import {CreateAccount} from './create_account';
 // import './floatinglabels.css';
 // import './styles.css';
-// import {Table} from './table';
 import { App } from "./game";
 import { Leaderboard } from './leaderboard';
 
@@ -22,14 +21,25 @@ export function Login() {
     }
 
     async function getLeaderboard() {
-        ReactDOM.render(<Leaderboard />, document.getElementById('root'));
+        let userInfo = [];        
+        let users = await axios({
+            method: 'get',
+            url: 'http://localhost:3030/users/info',
+            withCredentials: true
+        });
+        let keys = Object.keys(users.data);
+        keys.forEach(key => {
+            userInfo.push(users.data[key]);
+        });
+        userInfo.sort((a, b) => b.money - a.money);
+        ReactDOM.render(<Leaderboard players={userInfo}/>, document.getElementById('root'));
     }
 
     async function handleLoginAttempt(event) {
         event.preventDefault();
 
         try {
-            await axios({
+            let result = await axios({
                 method: "post",
                 url: "http://localhost:3030/login",
                 data: {
@@ -37,8 +47,8 @@ export function Login() {
                     "password": passwordText
                 },
                 withCredentials: true
-            }).then(response => ReactDOM.render(<App username={usernameText} money={response.data.money}/>, document.getElementById('root')));
-            
+            });
+            ReactDOM.render(<App username={usernameText} money={result.data.money}/>, document.getElementById('root'));
             return;
         } catch (err) {
             console.log(err);
@@ -71,11 +81,11 @@ export function Login() {
             <button className="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
             <p className="mt-3 mb-2 text-center">Don't have an account yet?</p>
             <button onClick={handleCreateButtonClick} className="btn btn-lg btn-primary btn-block">Create Account</button>
-            <p className="mt-5 mb-3 text-muted text-center">Created by Randy Sievers, Emily Fallon, Michael Carter</p>
+            <div>
+                <button className="btn btn-lg btn-primary btn-block" onClick={getLeaderboard}>View Leaderboard</button>
+            </div>
+            <p className="mt-5 mb-3 text-muted text-center">Created by Randy Sievers, Emily Fallon, Michael Carter, John Fulghieri</p>
             </form>
-        </div>
-        <div>
-            <button className="btn btn-lg btn-primary btn-block" onClick={getLeaderboard}>View Leaderboard</button>
         </div>
     </div>
     )

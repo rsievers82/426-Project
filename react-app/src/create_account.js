@@ -34,6 +34,7 @@ export function CreateAccount() {
             return;
         } catch (err) {
             console.log(err.message);
+            // fix this
             ReactDOM.render(<h2>{err.message}</h2>, document.getElementById('root'));
             return;
         }

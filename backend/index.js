@@ -35,6 +35,11 @@ app.get('/users', (req, res) => {
     res.json(users);
 })
 
+app.get('/users/info', (req, res) => {
+    let users = login_data.data;
+    res.json(users);
+})
+
 app.get('/users/:user', (req, res) => {
     let user = login_data.get(req.params.user);
     res.json(user);
