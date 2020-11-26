@@ -24,13 +24,13 @@ export function Leaderboard(props) {
                 </td>
             </tr>
         )
-    });   
-    
+    });
+
 
     return (
         <div>
-            <table>
-                <thead>
+            <table className="table table-hover">
+                <thead className='thead-light'>
                     <tr>
                         <td>
 
