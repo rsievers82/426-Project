@@ -64,7 +64,7 @@ export function CreateAccount() {
         <button className="btn btn-lg btn-primary btn-block" type="submit">Create Account</button>
 
         <button onClick={handleLoginButtonClick} className="btn btn-lg btn-primary btn-block">Login</button>
-        <p className="mt-5 mb-3 text-muted text-center">Created by Randy Sievers, Emily Fallon, Michael Carter</p>
+        <p className="mt-5 mb-3 text-muted text-center">Created by Randy Sievers, Emily Fallon, Michael Carter, John Fulghieri</p>
     </form>
     ); 
 }
