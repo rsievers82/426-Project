@@ -20,7 +20,7 @@ export function Leaderboard(props) {
                     {player.user}
                 </td>
                 <td>
-                    {player.money}
+                    ${player.money}
                 </td>
             </tr>
         )

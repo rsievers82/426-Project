@@ -9,8 +9,8 @@ import { Leaderboard } from './leaderboard';
 
 export function Login() {
     const [usernameText, setUsernameText] = useState('');
-
     const [passwordText, setPasswordText] = useState('');
+    const [message, setMessage] = useState('');
 
     function handleChange(event) {
         if (event.target.id === "inputUsername") {
@@ -52,7 +52,7 @@ export function Login() {
             return;
         } catch (err) {
             console.log(err);
-            return <h2>Error</h2>;
+            setMessage("There was an error logging you in. Double check your username and password.")
         }
     }
 
@@ -78,6 +78,7 @@ export function Login() {
                 <label htmlFor="inputPassword">Password</label>
             </div>
 
+            <p className="text-center error">{message}</p>
             <button className="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
             <p className="mt-3 mb-2 text-center">Don't have an account yet?</p>
             <button onClick={handleCreateButtonClick} className="btn btn-lg btn-primary btn-block">Create Account</button>

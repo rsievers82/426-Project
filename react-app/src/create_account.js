@@ -6,8 +6,8 @@ import axios from 'axios';
 
 export function CreateAccount() {
     const [usernameText, setUsernameText] = useState('');
-
     const [passwordText, setPasswordText] = useState('');
+    const [message, setMessage] = useState('');
 
     function handleChange(event) {
         if (event.target.id === "inputUsername") {
@@ -30,12 +30,11 @@ export function CreateAccount() {
                 },
                 withCredentials: true
             });
-            ReactDOM.render(<Login />, document.getElementById('root'));
+            setMessage("Account created! Login to start playing.");
             return;
         } catch (err) {
             console.log(err.message);
-            // fix this
-            ReactDOM.render(<h2>{err.message}</h2>, document.getElementById('root'));
+            setMessage('There was an error creating your account. Make sure your password is at least 8 characters.');
             return;
         }
     }
@@ -60,9 +59,11 @@ export function CreateAccount() {
             <label htmlFor="inputPassword">Password</label>
         </div>
 
+        <p className="error text-center">{message}</p>
+
         <button className="btn btn-lg btn-primary btn-block" type="submit">Create Account</button>
 
-        <button onClick={handleLoginButtonClick} className="btn btn-lg btn-primary btn-block">Home</button>
+        <button onClick={handleLoginButtonClick} className="btn btn-lg btn-primary btn-block">Login</button>
         <p className="mt-5 mb-3 text-muted text-center">Created by Randy Sievers, Emily Fallon, Michael Carter</p>
     </form>
     ); 

@@ -24,3 +24,8 @@
     display: flex;
     justify-content: center;
   }
+
+  .error {
+    color: red;
+    font-family: sans-serif
+  }
