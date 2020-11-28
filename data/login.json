@@ -13,5 +13,15 @@
     "user": "fourth",
     "password": "bbbbbbbb",
     "money": 4450
+  },
+  "letssee": {
+    "user": "letssee",
+    "password": "weshallsee",
+    "money": 3700
+  },
+  "goodusername": {
+    "user": "goodusername",
+    "password": "goodpass",
+    "money": 5400
   }
 }

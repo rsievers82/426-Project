@@ -1,15 +1,21 @@
 // import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Login } from './login';
 
 export function Leaderboard(props) {
+
+    const players = props.players;
+    const usernames = players.map(player => player.user).sort();
+
+
     const [input, setInput] = useState('');
 
     const [filteredUsers, setFilteredUsers] = useState([]);
 
-    const players = props.players;
-    const usernames = players.map(player => player.user).sort();
+    const [tableRows, setTableRows] = useState([]);
+
+
 
 
     function handleLoginButtonClick(event) {
@@ -22,18 +28,33 @@ export function Leaderboard(props) {
     }
 
     function handlePlayerPick(event) {
-        tableRows = players.slice(players.findIndex(player => player.user === event.target.key))
+        setTableRows(players.slice(players.findIndex(player => player.user === event.target.innerHTML)).map(player => {
+            return (
+                <tr key={player.user}>
+                    <td>
+                        {players.findIndex(p => p.user === player.user) + 1}
+                    </td>
+                    <td>
+                        {player.user}
+                    </td>
+                    <td>
+                        ${player.money}
+                    </td>
+                </tr>
+            )
+        }));
     }
 
     const usersFormatted = filteredUsers.map(filteredUser => {
         return (
-            <div key={filteredUser}>
+            <div key={filteredUser} onClick={handlePlayerPick}>
                 {filteredUser}
             </div>
         )
     })
 
-    let tableRows = players.map(player => {
+    useEffect(() => {
+    setTableRows(players.map(player => {
         return (
             <tr key={player.user}>
                 <td>
@@ -47,14 +68,15 @@ export function Leaderboard(props) {
                 </td>
             </tr>
         )
-    });
+    }))
+    }, [players]);
 
 
     return (
         <div>
             <div className="search">
                 <input name="search" value={input} id="search" type="text" placeholder="search for a player..." onChange={handleInput}/>
-                <div className="options" onClick={handlePlayerPick}>
+                <div className="options">
                     {usersFormatted}
                 </div>
             </div>
