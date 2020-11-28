@@ -94,28 +94,28 @@ export function Leaderboard(props) {
     })
 
     useEffect(() => {
-    setTableRows(players.map(player => {
-        return (
-            <tr key={player.user}>
-                <td>
-                    {players.findIndex(p => p.user === player.user) + 1}
-                </td>
-                <td>
-                    {player.user}
-                </td>
-                <td>
-                    ${player.money}
-                </td>
-            </tr>
-        )
-    }));
+        setTableRows(players.map(player => {
+            return (
+                <tr key={player.user}>
+                    <td>
+                        {players.findIndex(p => p.user === player.user) + 1}
+                    </td>
+                    <td>
+                        {player.user}
+                    </td>
+                    <td>
+                        ${player.money}
+                    </td>
+                </tr>
+            )
+        }));
     }, [players]);
 
 
     return (
         <div onKeyDown={handleEnter}>
             <div className="search">
-                <input name="search" value={input} id="search" type="text" placeholder="search for a player..." onChange={handleInput}/>
+                <input className="form-control" name="search" value={input} id="search" type="text" placeholder="search for a player..." onChange={handleInput} />
                 <div className="options">
                     {usersFormatted}
                 </div>

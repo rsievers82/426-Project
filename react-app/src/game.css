@@ -32,7 +32,7 @@ body {
     justify-content: center;
   }
   
-  .card, .card-red {
+  .playing-card, .playing-card-red {
     height: 150px;
     width: 100px;
     background-color: #FFFFFF;

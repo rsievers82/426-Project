@@ -19,15 +19,15 @@ export class App extends React.Component {
       gameOver: false,
       message: null,
     };
-    
+
   }
 
   handleLogoutButtonClick(event) {
     axios({
       "method": "get",
       "url": "http://localhost:3030/logout"
-  });
-  ReactDOM.render(<Login />, document.getElementById('root'));
+    });
+    ReactDOM.render(<Login />, document.getElementById('root'));
   }
 
   generateDeck() {
@@ -76,8 +76,8 @@ export class App extends React.Component {
           message: null
         });
       } else {
-        this.setState({ 
-          message: 'Game over! You are broke!' ,
+        this.setState({
+          message: 'Game over! You are broke!',
           gameOver: true
         });
       }
@@ -109,7 +109,7 @@ export class App extends React.Component {
     const currentBet = this.state.inputValue;
 
     if (currentBet <= 0) {
-       this.setState({ message: 'Bet must be greater than $0.' });
+      this.setState({ message: 'Bet must be greater than $0.' });
     } else if (currentBet > this.state.wallet) {
       this.setState({ message: 'Insufficient funds to bet that amount.' });
     } else if (currentBet % 1 !== 0) {
@@ -170,7 +170,7 @@ export class App extends React.Component {
               "money": this.state.wallet
             }
           });
-          
+
           setTimeout(() => {
             this.startNewGame('continue');
           }, 4000);
@@ -200,9 +200,9 @@ export class App extends React.Component {
             }
           });
           currentBet *= 2;
-          this.setState({ 
-            wallet: result.data.money, 
-            currentBet 
+          this.setState({
+            wallet: result.data.money,
+            currentBet
           });
           this.hit();
           if (this.getCount(this.state.player.cards) < 21) {
@@ -262,9 +262,9 @@ export class App extends React.Component {
       // Keep drawing cards until count is 17 or more
       while (dealer.count < 17) {
         // setTimeout(() => {
-          const draw = this.dealerDraw(dealer, deck);
-          dealer = draw.dealer;
-          deck = draw.updatedDeck;
+        const draw = this.dealerDraw(dealer, deck);
+        dealer = draw.dealer;
+        deck = draw.updatedDeck;
         // }, 2000);
       }
 
@@ -379,21 +379,21 @@ export class App extends React.Component {
 
     return (
       <div className="container-fluid">
-      {/* <!-- Header --> */}
-      <header className="site-header d-flex p-2 justify-content-between">
+        {/* <!-- Header --> */}
+        <header className="site-header d-flex p-2 justify-content-between">
           <div className="site-title text-center h3">Blackjack - CS 426</div>
           <button className="btn btn-lg btn-primary" onClick={this.handleLogoutButtonClick.bind(this)}>Logout</button>
-      </header>
-      {/* <!-- Dealer Area --> */}
-      <div className="row d-flex p-2 justify-content-center">
+        </header>
+        {/* <!-- Dealer Area --> */}
+        <div className="row d-flex p-2 justify-content-center">
           <div className="card">
-              <div className="card-body">
-                  <h4 className="card-title text-center username">Dealer</h4>
-                  <div className="text-center hand">
-                    <table className="cards">
-                      {
-                        this.state.currentBet ?
-                        <tbody>
+            <div className="card-body">
+              <h4 className="card-title text-center username">Dealer</h4>
+              <div className="text-center hand">
+                <table className="cards table table-bordered">
+                  {
+                    this.state.currentBet ?
+                      <tbody>
                         <tr>
                           {this.state.dealer.cards.map((card, i) => {
                             return <Card key={i} number={card.number} suit={card.suit} />;
@@ -402,84 +402,84 @@ export class App extends React.Component {
                         </tr>
                       </tbody>
                       : null
-                      }
-                    </table>
-                  </div>
-              </div>
-          </div>
-      </div>
-      {/* <!-- Betting Area --> */}
-      <div className="row d-flex p-2 justify-content-center">
-          <div className="d-flex justify-content-center flex-column col-md-3">
-              <div className="card">
-                  <div className="card-body">
-                      <div className="card-text d-flex justify-content-around">
-                      {
-                        !this.state.currentBet ?
-                        <div className="field has-addons">
-                          <div className="control">
-                            <input className="input" type="text" value={this.state.inputValue} onChange={this.inputChange.bind(this)} />
-                          </div>
-                          <div className="control">
-                          <button className="button is-warning" onClick={() => { this.placeBet() }}>Place Bet</button>
-                          </div>
-                        </div>
-                        : null
-                      }                      
-                    </div>
-                  </div>
-              </div>
-              <div className="card">
-                  <div className="card-body">
-                      <div className="card-text d-flex justify-content-around">
-                          <button className="btn btn-lg btn-primary" onClick={this.hit.bind(this)}>Hit</button>
-                          <button className="btn btn-lg btn-primary" onClick={this.stand.bind(this)}>Stand</button>
-                          <button className="btn btn-lg btn-primary" onClick={this.doubleDown.bind(this)}>Double Down</button>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      {/* <!-- Players Area --> */}
-      <div className="row fixed-bottom p-2">
-          <div className="col-lg-12 d-inline-flex justify-content-around players card-group">
-                <table className="cards">
-                  {
-                    this.state.currentBet ? 
-                    <tbody>
-                    <tr>
-                    {this.state.player.cards.map((card, i) => {
-                      return <Card key={i} number={card.number} suit={card.suit} />
-                      })}
-                    <td>({this.getCount(this.state.player.cards)})</td>
-                    </tr>
-                    </tbody>
-                    : null
                   }
                 </table>
-              {/* <!-- sample player card --> */}
-              <div className="card">
-                  <div className="card-top text-center hand">Look <a
-                          href="https://www.htmlsymbols.xyz/games-symbols/playing-cards">here</a> for a list
-                      of all Unicode playing cards.</div>
-                  <div className="card-body">
-                      <h4 className="card-title text-center username">{this.props.username}</h4>
-                      <p className="card-text text-center bet">
-                          Current Bet: ${this.state.currentBet}
-                      </p>
-                      <p className="card-text text-center money">
-                          Total Money: ${this.state.wallet}
-                      </p>
-                  </div>
               </div>
-              <p className="mt-6">{this.state.message}</p>
+            </div>
+          </div>
+        </div>
+        {/* <!-- Betting Area --> */}
+        <div className="row d-flex p-2 justify-content-center">
+          <div className="d-flex justify-content-center flex-column col-md-3">
+            <div className="card">
+              <div className="card-body">
+                <div className="card-text d-flex justify-content-around">
+                  {
+                    !this.state.currentBet ?
+                      <div className="field has-addons">
+                        <div className="control">
+                          <input className="input" type="text" value={this.state.inputValue} onChange={this.inputChange.bind(this)} />
+                        </div>
+                        <div className="control">
+                          <button className="button is-warning" onClick={() => { this.placeBet() }}>Place Bet</button>
+                        </div>
+                      </div>
+                      : null
+                  }
+                </div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-body">
+                <div className="card-text d-flex justify-content-around">
+                  <button className="btn btn-lg btn-primary" onClick={this.hit.bind(this)}>Hit</button>
+                  <button className="btn btn-lg btn-primary" onClick={this.stand.bind(this)}>Stand</button>
+                  <button className="btn btn-lg btn-primary" onClick={this.doubleDown.bind(this)}>Double Down</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* <!-- Players Area --> */}
+        <div className="row fixed-bottom p-2">
+          <div className="col-lg-12 d-inline-flex justify-content-around players card-group">
+            <table className="cards table table-bordered">
+              {
+                this.state.currentBet ?
+                  <tbody>
+                    <tr>
+                      {this.state.player.cards.map((card, i) => {
+                        return <Card key={i} number={card.number} suit={card.suit} />
+                      })}
+                      <td>({this.getCount(this.state.player.cards)})</td>
+                    </tr>
+                  </tbody>
+                  : null
+              }
+            </table>
+            {/* <!-- sample player card --> */}
+            <div className="card">
+              <div className="card-top text-center hand">Look <a
+                href="https://www.htmlsymbols.xyz/games-symbols/playing-cards">here</a> for a list
+                      of all Unicode playing cards.</div>
+              <div className="card-body">
+                <h4 className="card-title text-center username">{this.props.username}</h4>
+                <p className="card-text text-center bet">
+                  Current Bet: ${this.state.currentBet}
+                </p>
+                <p className="card-text text-center money">
+                  Total Money: ${this.state.wallet}
+                </p>
+              </div>
+            </div>
+            <p className="mt-6">{this.state.message}</p>
 
 
           </div>
+        </div>
+        {/* <!-- End Player Area --> */}
       </div>
-      {/* <!-- End Player Area --> */}
-  </div>
     );
 
   }
@@ -488,7 +488,7 @@ export class App extends React.Component {
 
 const Card = ({ number, suit }) => {
   const combo = (number) ? `${number}${suit}` : null;
-  const color = (suit === '♦' || suit === '♥') ? 'card-red' : 'card';
+  const color = (suit === '♦' || suit === '♥') ? 'playing-card-red' : 'playing-card';
 
   return (
     <td>
