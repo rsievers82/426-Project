@@ -32,7 +32,6 @@ const db = admin.firestore();
 
 const usersRef = db.collection('users');
 
-const login_data = require('data-store')({path: process.cwd() + '/data/login.json'});
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -40,7 +39,7 @@ app.use(bodyParser.json());
 app.get('/users', async (req, res) => {
     const usersRef = db.collection('users');
     let users = await usersRef.get().data();
-    let publicUsers = users.map(record => {record.user})
+    let publicUsers = users.map( record => {record.user})
     res.json(publicUsers);
 })
 
@@ -90,11 +89,11 @@ app.post('/login', (req, res) => {
     let user = req.body.user;
     let password = req.body.password;
     let user_data = usersRef.doc(user).get(user).data();
-    if (user_data == null) {
+    if (user_data) {
         res.status(404).send("Invalid username");
         return;
     }
-    if (user_data.password == password) {
+    if (user_data.password === password) {
         console.log("User " + user + " credentials valid");
         req.session.user = user;
         res.json(user_data);
@@ -111,7 +110,7 @@ app.get('/logout', (req, res) => {
 
 
 app.put('/users/:user', (req, res) => {
-    if (req.session.user == undefined) {
+    if (req.session.user === undefined) {
         res.status(403).send("Login to update account.");
         return;
     }
@@ -156,7 +155,7 @@ app.put('/users/:user', (req, res) => {
 
 
 app.delete('/users/:user', (req, res) => {
-    if (req.session.user == undefined) {
+    if (req.session.user === undefined) {
         res.status(403).send("Login to delete account");
         return;
     }
@@ -167,7 +166,7 @@ app.delete('/users/:user', (req, res) => {
         res.status(404).send("User Not Found");
         return;
     }
-    if (req.session.user != user) {
+    if (req.session.user !== user) {
         res.status(403).send("Cannot delete another players account.");
         return;
     }
