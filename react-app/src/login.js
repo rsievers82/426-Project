@@ -62,7 +62,7 @@ export function Login() {
 
     return (
     <div>
-        <div>
+        <div className="container">
             <form className="form-signin" onSubmit={handleLoginAttempt}>
             <div className="text-center mb-4">
                 <h1 className="h3 mb-3 font-weight-normal">Blackjack Login</h1>
@@ -78,7 +78,7 @@ export function Login() {
                 <label htmlFor="inputPassword">Password</label>
             </div>
 
-            <p className="text-center error">{message}</p>
+            <p className="text-center text-danger">{message}</p>
             <button className="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
             <p className="mt-3 mb-2 text-center">Don't have an account yet?</p>
             <button onClick={handleCreateButtonClick} className="btn btn-lg btn-primary btn-block">Create Account</button>

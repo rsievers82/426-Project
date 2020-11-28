@@ -38,5 +38,10 @@
     "user": "imalright9",
     "password": "09876543",
     "money": 5000
+  },
+  "lastone": {
+    "user": "lastone",
+    "password": "lastpassword",
+    "money": 5000
   }
 }

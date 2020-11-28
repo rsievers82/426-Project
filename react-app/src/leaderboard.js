@@ -19,6 +19,7 @@ export function Leaderboard(props) {
     function handleEnter(event) {
         const enter = 13;
         if (event.keyCode === enter) {
+            event.preventDefault();
             if (input === "") {
                 setTableRows(players.map(player => {
                     return (
@@ -68,28 +69,48 @@ export function Leaderboard(props) {
         } else {
             end = players.findIndex(player => player.user === event.target.innerHTML) + 3
         }
-        setTableRows(players.slice(start, end + 1).map(player => {
-            return (
-                <tr key={player.user}>
-                    <td>
-                        {players.findIndex(p => p.user === player.user) + 1}
-                    </td>
-                    <td>
-                        {player.user}
-                    </td>
-                    <td>
-                        ${player.money}
-                    </td>
-                </tr>
-            )
-        }));
+        setFilteredUsers([]);
+        setTableRows(
+            players.slice(start, end + 1).map(player => {
+                if (player.user === event.target.innerHTML) {
+                    return (
+                        <tr key={player.user} className="text-primary">
+                            <td>
+                                {players.findIndex(p => p.user === player.user) + 1}
+                            </td>
+                            <td>
+                                {player.user}
+                            </td>
+                            <td>
+                                ${player.money}
+                            </td>
+                        </tr>
+                    )
+                } else {
+                    return (
+                        <tr key={player.user}>
+                            <td>
+                                {players.findIndex(p => p.user === player.user) + 1}
+                            </td>
+                            <td>
+                                {player.user}
+                            </td>
+                            <td>
+                                ${player.money}
+                            </td>
+                        </tr>
+                    )
+                }
+                
+            })
+        );
     }
 
     const usersFormatted = filteredUsers.map(filteredUser => {
         return (
-            <div key={filteredUser} onClick={handlePlayerPick}>
-                {filteredUser}
-            </div>
+            <tr className="border border-secondary" key={filteredUser} onClick={handlePlayerPick}>
+                <td>{filteredUser}</td>
+            </tr>
         )
     })
 
@@ -113,13 +134,15 @@ export function Leaderboard(props) {
 
 
     return (
-        <div onKeyDown={handleEnter}>
-            <div className="search">
-                <input className="form-control" name="search" value={input} id="search" type="text" placeholder="search for a player..." onChange={handleInput} />
-                <div className="options">
-                    {usersFormatted}
-                </div>
-            </div>
+        <div className="container" onKeyDown={handleEnter}>
+            <form className="search" autoComplete="off">
+                <input name="search" value={input} id="search" type="text" placeholder="search for a player..." onChange={handleInput}/>
+                <table className="table-hover">
+                    <tbody>
+                        {usersFormatted}
+                    </tbody>
+                </table>
+            </form>
             <table className="table table-hover">
                 <thead className='thead-light'>
                     <tr>
