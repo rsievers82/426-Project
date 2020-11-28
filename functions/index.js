@@ -46,14 +46,14 @@ app.get('/users', async (req, res) => {
 
 app.get('/users/info', (req, res) => {
     const usersRef = db.collection('users');
-    let users = await usersRef.get().data();
+    let users =  usersRef.get().data();
     let publicUsers = users.map(record => {record.user, record.money})
     res.json(publicUsers);
 })
 
 app.get('/users/:user', (req, res) => {
     const usersRef = db.collection('users');
-    let user = await usersRef.doc(user).get(req.params.user).data();
+    let user = usersRef.doc(user).get(req.params.user).data();
     res.json(user);
 })
 
@@ -66,12 +66,12 @@ app.post('/create', (req, res) => {
         return;
     }
     const usersRef = db.collection('users');
-    let existingUser = await usersRef.doc(user).get();
+    let existingUser = usersRef.doc(user).get();
     if (existingUser.exists) {
         res.status(403).send("Username taken. Try Again.");
         return;
     }
-    await usersRef.doc(user).set({
+    usersRef.doc(user).set({
         user,
         password,
         'money': 5000
@@ -81,7 +81,7 @@ app.post('/create', (req, res) => {
         password,
         'money': 5000
     }); */
-    res.json(await usersRef.doc(user).get(user).data());
+    res.json(usersRef.doc(user).get(user).data());
 });
 
 
@@ -89,7 +89,7 @@ app.post('/login', (req, res) => {
     const usersRef = db.collection('users');
     let user = req.body.user;
     let password = req.body.password;
-    let user_data = await usersRef.doc(user).get(user).data();
+    let user_data = usersRef.doc(user).get(user).data();
     if (user_data == null) {
         res.status(404).send("Invalid username");
         return;
@@ -116,7 +116,7 @@ app.put('/users/:user', (req, res) => {
         return;
     }
     const usersRef = db.collection('users');
-    let current = await usersRef.get(req.params.user);
+    let current = usersRef.get(req.params.user);
     if (!current.exists) {
         res.status(404).send("User Not Found");
         return;
@@ -131,7 +131,7 @@ app.put('/users/:user', (req, res) => {
     req.body.user ? user = req.body.user : user = req.params.user;
     req.body.password ? password = req.body.password : password = current.password;
     req.body.money ? money = req.body.money : money = current.money;
-    if (await usersRef.doc(user).get().exists && user !== req.session.user) {
+    if (usersRef.doc(user).get().exists && user !== req.session.user) {
         res.status(404).send("Username taken. Try again.");
         return;
     }
@@ -142,16 +142,16 @@ app.put('/users/:user', (req, res) => {
     if (money < 0) {
         money = 0;
     }
-    await usersRef.doc(user).update({
+    usersRef.doc(user).update({
         user,
         password,
         money
     });
     if (user !== req.params.user) {
-        await usersRef.doc(user).delete();
+        usersRef.doc(user).delete();
         req.session.user = user;
     }
-    res.json(await usersRef.doc(user).get().data());
+    res.json(usersRef.doc(user).get().data());
 });
 
 
@@ -162,7 +162,7 @@ app.delete('/users/:user', (req, res) => {
     }
     let user = req.params.user;
     const usersRef = db.collection('users');
-    const currentUser = await usersRef.doc(user).get();
+    const currentUser = usersRef.doc(user).get();
     if (currentUser.exists) {
         res.status(404).send("User Not Found");
         return;
@@ -171,7 +171,7 @@ app.delete('/users/:user', (req, res) => {
         res.status(403).send("Cannot delete another players account.");
         return;
     }
-    await usersRef.doc(user).delete();
+    usersRef.doc(user).delete();
     delete req.session.user;
     res.json(true);
 });
@@ -179,7 +179,7 @@ app.delete('/users/:user', (req, res) => {
 
 app.delete('/users', (req, res) => {
     const usersRef = db.collection('users');
-    await usersRef.delete();
+    SusersRef.delete();
     res.json(true);
     
 })
