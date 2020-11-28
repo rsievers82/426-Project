@@ -18,7 +18,6 @@ export class App extends React.Component {
       currentBet: null,
       gameOver: false,
       message: null,
-      splitHand: null
     };
     
   }
@@ -221,64 +220,6 @@ export class App extends React.Component {
   }
 
 
-  async split() {
-    if (!this.state.gameOver) {
-      if (this.state.currentBet) {
-        if (this.state.player.cards.length === 2) {
-          if (this.state.player.cards[0].number === this.state.player.cards[1].number) {
-            // split the hands
-            let leftHand = {
-              cards: [this.state.player.cards[0]],
-              currentBet: this.state.currentBet
-            };
-            let rightHand = {
-              cards: [this.state.player.cards[1]],
-              currentBet: this.state.currentBet
-            };
-            // add a second equal bet to the second hand
-            let result = await axios({
-              method: 'put',
-              url: `http://localhost:3030/users/${this.props.username}`,
-              withCredentials: true,
-              data: {
-                'money': this.state.wallet - this.state.currentBet
-              }
-            });
-            // pull a card for each hand
-            let leftCardPulled = this.getRandomCard(this.state.deck)
-            leftHand.cards.push(leftCardPulled.randomCard);
-            let rightCardPulled = this.getRandomCard(leftCardPulled.updatedDeck);
-            rightHand.cards.push(rightCardPulled.randomCard);
-            // update state
-            this.setState({
-              deck: rightCardPulled.updatedDeck,
-              player: {
-                cards: leftHand.cards,
-                count: this.getCount(leftHand.cards)
-              },
-              wallet: result.data.money,
-              currentBet: this.state.currentBet * 2,
-              splitHand: {
-                cards: rightHand.cards,
-                count: this.getCount(rightHand.cards),
-                currentBet: this.state.currentBet / 2
-              }
-            });
-            
-          } else {
-            this.setState({ message: "Your cards must have the same value to split." });
-          }
-        } else {
-          this.setState({ message: "You cannot split now." });
-        }
-      } else {
-        this.setState({ message: "Please place your bet." })
-      }
-    } else {
-      this.setState({ message: "You are out of money." })
-    }
-  }
-
   dealerDraw(dealer, deck) {
     const { randomCard, updatedDeck } = this.getRandomCard(deck);
     dealer.cards.push(randomCard);
@@ -421,20 +362,20 @@ export class App extends React.Component {
   }
 
   render() {
-    let dealerCount;
-    const card1 = this.state.dealer.cards[0].number;
-    const card2 = this.state.dealer.cards[1].number;
-    if (card2) {
-      dealerCount = this.state.dealer.count;
-    } else {
-      if (card1 === 'J' || card1 === 'Q' || card1 === 'K') {
-        dealerCount = 10;
-      } else if (card1 === 'A') {
-        dealerCount = 11;
-      } else {
-        dealerCount = card1;
-      }
-    }
+    // let dealerCount;
+    // const card1 = this.state.dealer.cards[0].number;
+    // const card2 = this.state.dealer.cards[1].number;
+    // if (card2) {
+    //   dealerCount = this.state.dealer.count;
+    // } else {
+    //   if (card1 === 'J' || card1 === 'Q' || card1 === 'K') {
+    //     dealerCount = 10;
+    //   } else if (card1 === 'A') {
+    //     dealerCount = 11;
+    //   } else {
+    //     dealerCount = card1;
+    //   }
+    // }
 
     return (
       <div className="container-fluid">
@@ -457,7 +398,7 @@ export class App extends React.Component {
                           {this.state.dealer.cards.map((card, i) => {
                             return <Card key={i} number={card.number} suit={card.suit} />;
                           })}
-                          <p>({this.state.dealer.count})</p>
+                          <td>({this.state.dealer.count})</td>
                         </tr>
                       </tbody>
                       : null
@@ -493,7 +434,6 @@ export class App extends React.Component {
                       <div className="card-text d-flex justify-content-around">
                           <button className="btn btn-lg btn-primary" onClick={this.hit.bind(this)}>Hit</button>
                           <button className="btn btn-lg btn-primary" onClick={this.stand.bind(this)}>Stand</button>
-                          <button className="btn btn-lg btn-primary" onClick={this.split.bind(this)}>Split</button>
                           <button className="btn btn-lg btn-primary" onClick={this.doubleDown.bind(this)}>Double Down</button>
                       </div>
                   </div>
@@ -509,19 +449,10 @@ export class App extends React.Component {
                     this.state.currentBet ? 
                     <tbody>
                     <tr>
-                    {
-                      this.state.splitHand ?
-                      <p>({this.state.player.count})</p>
-                      : null
-                      }
                     {this.state.player.cards.map((card, i) => {
                       return <Card key={i} number={card.number} suit={card.suit} />
                       })}
-                      {
-                      !this.state.splitHand ?
-                      <p>({this.state.player.count})</p>
-                      : null
-                      }
+                    <td>({this.getCount(this.state.player.cards)})</td>
                     </tr>
                     </tbody>
                     : null

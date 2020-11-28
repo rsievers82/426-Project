@@ -16,7 +16,35 @@ export function Leaderboard(props) {
     const [tableRows, setTableRows] = useState([]);
 
 
-
+    function handleEnter(event) {
+        const enter = 13;
+        if (event.keyCode === enter) {
+            if (input === "") {
+                setTableRows(players.map(player => {
+                    return (
+                        <tr key={player.user}>
+                            <td>
+                                {players.findIndex(p => p.user === player.user) + 1}
+                            </td>
+                            <td>
+                                {player.user}
+                            </td>
+                            <td>
+                                ${player.money}
+                            </td>
+                        </tr>
+                    )
+                }));
+            } else if (usernames.find(u => u === input)) {
+                handlePlayerPick({
+                    target: {
+                        value: input,
+                        innerHTML: input
+                    }
+                });
+            }
+        }
+    }
 
     function handleLoginButtonClick(event) {
         ReactDOM.render(<Login />, document.getElementById('root'));
@@ -28,7 +56,19 @@ export function Leaderboard(props) {
     }
 
     function handlePlayerPick(event) {
-        setTableRows(players.slice(players.findIndex(player => player.user === event.target.innerHTML)).map(player => {
+        let start;
+        let end;
+        if (players.findIndex(player => player.user === event.target.innerHTML) <= 3) {
+            start = 0
+        } else {
+            start = players.findIndex(player => player.user === event.target.innerHTML) - 3
+        }
+        if (players.findIndex(player => player.user === event.target.innerHTML) >= players.length - 3) {
+            end = players.length - 1
+        } else {
+            end = players.findIndex(player => player.user === event.target.innerHTML) + 3
+        }
+        setTableRows(players.slice(start, end + 1).map(player => {
             return (
                 <tr key={player.user}>
                     <td>
@@ -68,12 +108,12 @@ export function Leaderboard(props) {
                 </td>
             </tr>
         )
-    }))
+    }));
     }, [players]);
 
 
     return (
-        <div>
+        <div onKeyDown={handleEnter}>
             <div className="search">
                 <input name="search" value={input} id="search" type="text" placeholder="search for a player..." onChange={handleInput}/>
                 <div className="options">

@@ -7,7 +7,7 @@
   "third": {
     "user": "third",
     "password": "aaaaaaaa",
-    "money": 5000
+    "money": 6400
   },
   "fourth": {
     "user": "fourth",
@@ -23,5 +23,20 @@
     "user": "goodusername",
     "password": "goodpass",
     "money": 5400
+  },
+  "verygoodatblackjack": {
+    "user": "verygoodatblackjack",
+    "password": "alalalal",
+    "money": 5000
+  },
+  "notsogoodatblackjack": {
+    "user": "notsogoodatblackjack",
+    "password": "qwertyui",
+    "money": 5000
+  },
+  "imalright9": {
+    "user": "imalright9",
+    "password": "09876543",
+    "money": 5000
   }
 }
