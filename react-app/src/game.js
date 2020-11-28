@@ -3,14 +3,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { Login } from './login';
+import { get } from 'jquery';
 // import './game.css';
+
+
 
 export class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      deck: [],
+      deck: null,
+      deckRemaining: null,
       dealer: null,
       player: null,
       wallet: this.props.money,
@@ -18,7 +22,8 @@ export class App extends React.Component {
       currentBet: null,
       gameOver: false,
       message: null,
-      splitHand: null
+      splitHand: null,
+      serverURL: this.props.this.state.serverURL
     };
     
   }
@@ -26,12 +31,12 @@ export class App extends React.Component {
   handleLogoutButtonClick(event) {
     axios({
       "method": "get",
-      "url": "http://localhost:3030/logout"
+      "url": this.state.serverURL+"/logout"
   });
   ReactDOM.render(<Login />, document.getElementById('root'));
   }
 
-  generateDeck() {
+/*   generateDeck() {
     const cards = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
     const suits = ['♦', '♣', '♥', '♠'];
     const deck = [];
@@ -41,14 +46,27 @@ export class App extends React.Component {
       }
     }
     return deck;
+  } */
+  async generateDeck(){
+    let result = await axios({
+      'method': 'get',
+      'url': 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6'
+    });
+    return {deck: result.data.deck_id, remaining: result.data.remaining};
   }
 
-  dealCards(deck) {
-    const playerCard1 = this.getRandomCard(deck);
+  async dealCards() {
+    let draw = await axios({
+      'method': 'get',
+      'url': `https://deckofcardsapi.com/api/deck/${this.state.deck}/draw/?count=3`
+    });
+
+    const {playerCard1, dealerCard1, playerCard2} = [...draw.data.cards];
+    /* const playerCard1 = this.getRandomCard(deck);
     const dealerCard1 = this.getRandomCard(playerCard1.updatedDeck);
-    const playerCard2 = this.getRandomCard(dealerCard1.updatedDeck);
-    const playerStartingHand = [playerCard1.randomCard, playerCard2.randomCard];
-    const dealerStartingHand = [dealerCard1.randomCard, {}];
+    const playerCard2 = this.getRandomCard(dealerCard1.updatedDeck); */
+    const playerStartingHand = [playerCard1, playerCard2];
+    const dealerStartingHand = [dealerCard1, {}];
 
     const player = {
       cards: playerStartingHand,
@@ -59,17 +77,17 @@ export class App extends React.Component {
       count: this.getCount(dealerStartingHand)
     };
 
-    return { updatedDeck: playerCard2.updatedDeck, player, dealer };
+    return {deckRemaining: draw.data.remaining, player, dealer };
   }
 
   startNewGame(type) {
     if (type === 'continue') {
       if (this.state.wallet > 0) {
         const deck = (this.state.deck.length < 10) ? this.generateDeck() : this.state.deck;
-        const { updatedDeck, player, dealer } = this.dealCards(deck);
+        const {remainder, player, dealer } = this.dealCards();
 
         this.setState({
-          deck: updatedDeck,
+          deckRemaining: remainder,
           dealer,
           player,
           currentBet: null,
@@ -84,10 +102,10 @@ export class App extends React.Component {
       }
     } else {
       const deck = this.generateDeck();
-      const { updatedDeck, player, dealer } = this.dealCards(deck);
+      const {remainder, player, dealer } = this.dealCards();
 
       this.setState({
-        deck: updatedDeck,
+        deckRemaining: remainder,
         dealer,
         player,
         inputValue: '',
@@ -98,13 +116,13 @@ export class App extends React.Component {
     }
   }
 
-  getRandomCard(deck) {
+  /* getRandomCard(deck) {
     const updatedDeck = deck;
     const randomIndex = Math.floor(Math.random() * updatedDeck.length);
     const randomCard = updatedDeck[randomIndex];
     updatedDeck.splice(randomIndex, 1);
     return { randomCard, updatedDeck };
-  }
+  } */
 
   async placeBet() {
     const currentBet = this.state.inputValue;
@@ -121,7 +139,7 @@ export class App extends React.Component {
       // Deduct current bet from wallet
       let result = await axios({
         method: 'put',
-        url: `http://localhost:3030/users/${this.props.username}`,
+        url: `${this.state.serverURL}/users/${this.props.username}`,
         withCredentials: true,
         data: {
           'money': this.state.wallet - currentBet
@@ -132,7 +150,7 @@ export class App extends React.Component {
       if (this.getCount(this.state.player.cards) === 21) {
         let result = await axios({
           method: 'put',
-          url: `http://localhost:3030/users/${this.props.username}`,
+          url: `${this.state.serverURL}/users/${this.props.username}`,
           withCredentials: true,
           data: {
             'money': this.state.wallet + this.state.currentBet * 3
@@ -150,10 +168,14 @@ export class App extends React.Component {
     this.setState({ message: '' });
   }
 
-  hit() {
+  async hit() {
     if (!this.state.gameOver) {
       if (this.state.currentBet) {
-        const { randomCard, updatedDeck } = this.getRandomCard(this.state.deck);
+        let newCard = await axios({
+          'method': 'get',
+          'url': `https://deckofcardsapi.com/api/deck/${this.state.deck}/draw/?count=1`
+        });
+        const { randomCard } = newCard.data.cards[0];
         const player = this.state.player;
         player.cards.push(randomCard);
         player.count = this.getCount(player.cards);
@@ -165,7 +187,7 @@ export class App extends React.Component {
           this.setState({ player, gameOver: true, message: 'BUST!' });
           axios({
             method: 'put',
-            url: `http://localhost:3030/users/${this.props.username}`,
+            url: `${this.state.serverURL}/users/${this.props.username}`,
             withCredentials: true,
             data: {
               "money": this.state.wallet
@@ -176,7 +198,7 @@ export class App extends React.Component {
             this.startNewGame('continue');
           }, 4000);
         } else {
-          this.setState({ deck: updatedDeck, player });
+          this.setState({ player });
         }
       } else {
         this.setState({ message: 'Please place your bet.' });
@@ -194,7 +216,7 @@ export class App extends React.Component {
           let currentBet = this.state.currentBet;
           let result = await axios({
             method: 'put',
-            url: `http://localhost:3030/users/${this.props.username}`,
+            url: `${this.state.serverURL}/users/${this.props.username}`,
             withCredentials: true,
             data: {
               'money': this.state.wallet - currentBet
@@ -225,7 +247,7 @@ export class App extends React.Component {
     if (!this.state.gameOver) {
       if (this.state.currentBet) {
         if (this.state.player.cards.length === 2) {
-          if (this.state.player.cards[0].number === this.state.player.cards[1].number) {
+          if (this.state.player.cards[0].value === this.state.player.cards[1].value) {
             // split the hands
             let leftHand = {
               cards: [this.state.player.cards[0]],
@@ -238,20 +260,23 @@ export class App extends React.Component {
             // add a second equal bet to the second hand
             let result = await axios({
               method: 'put',
-              url: `http://localhost:3030/users/${this.props.username}`,
+              url: `${this.state.serverURL}/users/${this.props.username}`,
               withCredentials: true,
               data: {
                 'money': this.state.wallet - this.state.currentBet
               }
             });
             // pull a card for each hand
-            let leftCardPulled = this.getRandomCard(this.state.deck)
-            leftHand.cards.push(leftCardPulled.randomCard);
-            let rightCardPulled = this.getRandomCard(leftCardPulled.updatedDeck);
+            const splitDraw = await axios({
+              method: 'get',
+              url: `https://deckofcardsapi.com/api/deck/${this.state.deck}/draw/?count=2`
+            });
+            let {leftCardPulled, rightCardPulled} = [...splitDraw.data.cards];
+            leftHand.cards.push(leftCardPulled);
             rightHand.cards.push(rightCardPulled.randomCard);
             // update state
             this.setState({
-              deck: rightCardPulled.updatedDeck,
+              deckRemaining: splitDraw.data.remaining,
               player: {
                 cards: leftHand.cards,
                 count: this.getCount(leftHand.cards)
@@ -279,31 +304,34 @@ export class App extends React.Component {
     }
   }
 
-  dealerDraw(dealer, deck) {
-    const { randomCard, updatedDeck } = this.getRandomCard(deck);
-    dealer.cards.push(randomCard);
+  dealerDraw(dealer) {
+    const dealerDraw = await axios({
+      method: 'get',
+      url: `https://deckofcardsapi.com/api/deck/${this.state.deck}/draw/?count=1`
+    });
+    dealer.cards.push(dealerDraw.data.cards[0]);
     dealer.count = this.getCount(dealer.cards);
-    return { dealer, updatedDeck };
+    return { dealer, remainder: dealerDraw.data.remaining };
   }
 
   getCount(cards) {
     const rearranged = [];
     cards.forEach(card => {
-      if (card.number === 'A') {
+      if (card.code.split("")[0] === 'A') {
         rearranged.push(card);
-      } else if (card.number) {
+      } else if (card.code.split("")[0]) {
         rearranged.unshift(card);
       }
       // (card.number === 'A') ? rearranged.push(card) : rearranged.unshift(card);
     });
 
     return rearranged.reduce((total, card) => {
-      if (card.number === 'J' || card.number === 'Q' || card.number === 'K') {
+      if (card.code.split("")[0] === 'J' || card.code.split("")[0] === 'Q' || card.code.split("")[0] === 'K') {
         return total + 10;
-      } else if (card.number === 'A') {
+      } else if (card.code.split("")[0] === 'A') {
         return (total + 11 <= 21) ? total + 11 : total + 1;
       } else {
-        return total + card.number;
+        return total + Number(card.code.split("")[0]);
       }
     }, 0);
   }
@@ -311,11 +339,14 @@ export class App extends React.Component {
   async stand() {
     if (!this.state.gameOver) {
       // Show dealer's 2nd card
-      const randomCard = this.getRandomCard(this.state.deck);
-      let deck = randomCard.updatedDeck;
+      const dealerCard = await axios({
+        'method': 'get',
+        'url': `https://deckofcardsapi.com/api/deck/${this.state.deck}/draw/?count=1`
+      });
+      const remainder = dealerCard.data.remaining;
       let dealer = this.state.dealer;
       dealer.cards.pop();
-      dealer.cards.push(randomCard.randomCard);
+      dealer.cards.push(dealerCard.data.cards[0]);
       dealer.count = this.getCount(dealer.cards);
 
       // Keep drawing cards until count is 17 or more
@@ -330,14 +361,14 @@ export class App extends React.Component {
       if (dealer.count > 21) {
         let result = await axios({
           method: 'put',
-          url: `http://localhost:3030/users/${this.props.username}`,
+          url: `${this.state.serverURL}/users/${this.props.username}`,
           withCredentials: true,
           data: {
             "money": this.state.wallet + this.state.currentBet * 2
           }
         });
         this.setState({
-          deck,
+          deckRemaining: remainder,
           dealer,
           wallet: result.data.money,
           message: 'Dealer bust! You win!'
@@ -353,7 +384,7 @@ export class App extends React.Component {
         } else if (winner === 'player') {
           let result = await axios({
             method: 'put',
-            url: `http://localhost:3030/users/${this.props.username}`,
+            url: `${this.state.serverURL}/users/${this.props.username}`,
             withCredentials: true,
             data: {
               "money": this.state.wallet + this.state.currentBet * 2
@@ -364,7 +395,7 @@ export class App extends React.Component {
         } else {
           let result = await axios({
             method: 'put',
-            url: `http://localhost:3030/users/${this.props.username}`,
+            url: `${this.state.serverURL}/users/${this.props.username}`,
             withCredentials: true,
             data: {
               "money": this.state.wallet + this.state.currentBet
@@ -375,7 +406,7 @@ export class App extends React.Component {
         }
 
         this.setState({
-          deck,
+          deckRemaining: remainder,
           dealer,
           wallet,
           gameOver: this.state.gameOver,
@@ -422,8 +453,8 @@ export class App extends React.Component {
 
   render() {
     let dealerCount;
-    const card1 = this.state.dealer.cards[0].number;
-    const card2 = this.state.dealer.cards[1].number;
+    const card1 = this.state.dealer.cards[0].code.split("")[0];
+    const card2 = this.state.dealer.cards[1].code.split("")[0];
     if (card2) {
       dealerCount = this.state.dealer.count;
     } else {
@@ -455,7 +486,8 @@ export class App extends React.Component {
                         <tbody>
                         <tr>
                           {this.state.dealer.cards.map((card, i) => {
-                            return <Card key={i} number={card.number} suit={card.suit} />;
+                            return <img src={card.image} alt={`${card.value} of ${card.suit}`}/>
+                            //return <Card key={i} number={card.code.split("")[0]} suit={card.suit} />;
                           })}
                           <p>({this.state.dealer.count})</p>
                         </tr>
@@ -515,7 +547,8 @@ export class App extends React.Component {
                       : null
                       }
                     {this.state.player.cards.map((card, i) => {
-                      return <Card key={i} number={card.number} suit={card.suit} />
+                      return <img src={card.image} alt={`${card.value} of ${card.suit}`}/>
+                      //return <Card key={i} number={card.number} suit={card.suit} />
                       })}
                       {
                       !this.state.splitHand ?

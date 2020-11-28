@@ -1,16 +1,21 @@
 import axios from 'axios';
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
-import {Login} from "./login"
+import {Login} from "./login";
+
+const serverURL= 'http://localhost:3030';
 
 export function Table(props) {
     const username = props.username;
     const money = props.money;
 
     async function handleLogoutButtonClick(event) {
+        //to implement a single source of truth for the server destination
+        //if a props is given the Backend, use:
+        //"url": this.props.server+"/logout"
         await axios({
             "method": "get",
-            "url": "http://localhost:3030/logout"
+            "url": serverURL+"/logout"
         });
         ReactDOM.render(<Login />, document.getElementById('root'));
     }

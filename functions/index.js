@@ -1,13 +1,14 @@
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
 const express = require('express');
+const cors = require('cors');
 
 const app = express();
-
-const cors = require('cors');
 
 const expressSession = require('express-session');
 
 const cors_options = {
-    origin: 'http://localhost:3000',
+    origin: 'true',
     credentials: true
   }
 
@@ -25,30 +26,34 @@ app.use(expressSession({
     }
 }));
 
-const admin = require('firebase-admin');
 admin.initializeApp();
 
 const db = admin.firestore();
 
-const users = db.collection('users');
+const usersRef = db.collection('users');
 
 const login_data = require('data-store')({path: process.cwd() + '/data/login.json'});
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-app.get('/users', (req, res) => {
-    let users = Object.keys(login_data.data);
-    res.json(users);
+app.get('/users', async (req, res) => {
+    const usersRef = db.collection('users');
+    let users = await usersRef.get().data();
+    let publicUsers = users.map(record => {record.user})
+    res.json(publicUsers);
 })
 
 app.get('/users/info', (req, res) => {
-    let users = login_data.data;
-    res.json(users);
+    const usersRef = db.collection('users');
+    let users = await usersRef.get().data();
+    let publicUsers = users.map(record => {record.user, record.money})
+    res.json(publicUsers);
 })
 
 app.get('/users/:user', (req, res) => {
-    let user = login_data.get(req.params.user);
+    const usersRef = db.collection('users');
+    let user = await usersRef.doc(user).get(req.params.user).data();
     res.json(user);
 })
 
@@ -60,23 +65,31 @@ app.post('/create', (req, res) => {
         res.status(403).send("Password must be at least 8 characters. Try Again.");
         return;
     }
-    if (login_data.get(user)) {
+    const usersRef = db.collection('users');
+    let existingUser = await usersRef.doc(user).get();
+    if (existingUser.exists) {
         res.status(403).send("Username taken. Try Again.");
         return;
     }
-    login_data.set(user, {
+    await usersRef.doc(user).set({
         user,
         password,
         'money': 5000
     });
-    res.json(login_data.get(user));
+    /* login_data.set(user, {
+        user,
+        password,
+        'money': 5000
+    }); */
+    res.json(await usersRef.doc(user).get(user).data());
 });
 
 
 app.post('/login', (req, res) => {
+    const usersRef = db.collection('users');
     let user = req.body.user;
     let password = req.body.password;
-    let user_data = login_data.get(user);
+    let user_data = await usersRef.doc(user).get(user).data();
     if (user_data == null) {
         res.status(404).send("Invalid username");
         return;
@@ -102,8 +115,9 @@ app.put('/users/:user', (req, res) => {
         res.status(403).send("Login to update account.");
         return;
     }
-    let current = (req.params.user);
-    if (!login_data.get(current)) {
+    const usersRef = db.collection('users');
+    let current = await usersRef.get(req.params.user);
+    if (!current.exists) {
         res.status(404).send("User Not Found");
         return;
     }
@@ -115,9 +129,9 @@ app.put('/users/:user', (req, res) => {
     let password;
     let money;
     req.body.user ? user = req.body.user : user = req.params.user;
-    req.body.password ? password = req.body.password : password = login_data.get(req.params.user).password;
-    req.body.money ? money = req.body.money : money = login_data.get(req.params.user).money;
-    if (login_data.get(user) && user !== req.session.user) {
+    req.body.password ? password = req.body.password : password = current.password;
+    req.body.money ? money = req.body.money : money = current.money;
+    if (await usersRef.doc(user).get().exists && user !== req.session.user) {
         res.status(404).send("Username taken. Try again.");
         return;
     }
@@ -128,16 +142,16 @@ app.put('/users/:user', (req, res) => {
     if (money < 0) {
         money = 0;
     }
-    login_data.set(user, {
+    await usersRef.doc(user).update({
         user,
         password,
         money
     });
     if (user !== req.params.user) {
-        login_data.del(req.params.user);
+        await usersRef.doc(user).delete();
         req.session.user = user;
     }
-    res.json(login_data.get(user));
+    res.json(await usersRef.doc(user).get().data());
 });
 
 
@@ -147,7 +161,9 @@ app.delete('/users/:user', (req, res) => {
         return;
     }
     let user = req.params.user;
-    if (!login_data.get(user)) {
+    const usersRef = db.collection('users');
+    const currentUser = await usersRef.doc(user).get();
+    if (currentUser.exists) {
         res.status(404).send("User Not Found");
         return;
     }
@@ -155,20 +171,23 @@ app.delete('/users/:user', (req, res) => {
         res.status(403).send("Cannot delete another players account.");
         return;
     }
-    login_data.del(user);
+    await usersRef.doc(user).delete();
     delete req.session.user;
     res.json(true);
 });
 
 
 app.delete('/users', (req, res) => {
-    login_data.clear();
+    const usersRef = db.collection('users');
+    await usersRef.delete();
     res.json(true);
     
 })
 
 
-const port = 3030;
+/* const port = process.env.port || 3030;
 app.listen(port, () => {
     console.log("App running on port " + port);
 })
+ */
+exports.app = functions.https.onRequest(app);

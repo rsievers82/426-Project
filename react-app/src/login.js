@@ -6,6 +6,8 @@ import {CreateAccount} from './create_account';
 // import './styles.css';
 import { App } from "./game";
 import { Leaderboard } from './leaderboard';
+//server URL in one easy place to change
+const serverURL= 'http://localhost:3030';
 
 export function Login() {
     const [usernameText, setUsernameText] = useState('');
@@ -24,7 +26,7 @@ export function Login() {
         let userInfo = [];        
         let users = await axios({
             method: 'get',
-            url: 'http://localhost:3030/users/info',
+            url: serverURL+'/users/info',
             withCredentials: true
         });
         let keys = Object.keys(users.data);
@@ -41,7 +43,7 @@ export function Login() {
         try {
             let result = await axios({
                 method: "post",
-                url: "http://localhost:3030/login",
+                url: serverURL+"/login",
                 data: {
                     "user": usernameText,
                     "password": passwordText
