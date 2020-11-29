@@ -2,7 +2,7 @@
   "newuser": {
     "user": "newuser",
     "password": "Sandybeach82",
-    "money": 6100
+    "money": 6000
   },
   "third": {
     "user": "third",
@@ -17,7 +17,7 @@
   "letssee": {
     "user": "letssee",
     "password": "weshallsee",
-    "money": 3700
+    "money": 0
   },
   "goodusername": {
     "user": "goodusername",
@@ -27,17 +27,17 @@
   "verygoodatblackjack": {
     "user": "verygoodatblackjack",
     "password": "alalalal",
-    "money": 5000
+    "money": 10000
   },
   "notsogoodatblackjack": {
     "user": "notsogoodatblackjack",
     "password": "qwertyui",
-    "money": 5000
+    "money": 3000
   },
   "imalright9": {
     "user": "imalright9",
     "password": "09876543",
-    "money": 5000
+    "money": 0
   },
   "lastone": {
     "user": "lastone",

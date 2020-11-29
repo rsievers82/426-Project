@@ -82,18 +82,22 @@ export class App extends React.Component {
         });
       }
     } else {
-      const deck = this.generateDeck();
-      const { updatedDeck, player, dealer } = this.dealCards(deck);
-
-      this.setState({
-        deck: updatedDeck,
-        dealer,
-        player,
-        inputValue: '',
-        currentBet: null,
-        gameOver: false,
-        message: null
-      });
+      if (this.state.wallet > 0) {
+        const deck = this.generateDeck();
+        const { updatedDeck, player, dealer } = this.dealCards(deck);
+  
+        this.setState({
+          deck: updatedDeck,
+          dealer,
+          player,
+          inputValue: '',
+          currentBet: null,
+          gameOver: false,
+          message: null
+        });
+      } else {
+        this.setState({ message: "You have no money!"})
+      }
     }
   }
 
@@ -142,7 +146,7 @@ export class App extends React.Component {
           wallet: result.data.money
         });
         setTimeout(() => {
-          this.startNewGame()
+          this.startNewGame("continue")
         }, 4000);
       }
     }
@@ -190,23 +194,27 @@ export class App extends React.Component {
     if (!this.state.gameOver) {
       if (this.state.currentBet) {
         if (this.state.player.cards.length === 2) {
-          let currentBet = this.state.currentBet;
-          let result = await axios({
-            method: 'put',
-            url: `http://localhost:3030/users/${this.props.username}`,
-            withCredentials: true,
-            data: {
-              'money': this.state.wallet - currentBet
+          if (!(this.state.currentBet > this.state.wallet)) {
+            let currentBet = this.state.currentBet;
+            let result = await axios({
+              method: 'put',
+              url: `http://localhost:3030/users/${this.props.username}`,
+              withCredentials: true,
+              data: {
+                'money': this.state.wallet - currentBet
+              }
+            });
+            currentBet *= 2;
+            this.setState({
+              wallet: result.data.money,
+              currentBet
+            });
+            this.hit();
+            if (this.getCount(this.state.player.cards) < 21) {
+              this.stand();
             }
-          });
-          currentBet *= 2;
-          this.setState({
-            wallet: result.data.money,
-            currentBet
-          });
-          this.hit();
-          if (this.getCount(this.state.player.cards) < 21) {
-            this.stand();
+          } else {
+            this.setState({ message: "You do not have enough money to double down."})
           }
         } else {
           this.setState({ message: "You cannot double down now." });
@@ -218,6 +226,7 @@ export class App extends React.Component {
       this.setState({ message: "You are out of money." })
     }
   }
+  
 
 
   dealerDraw(dealer, deck) {
@@ -325,11 +334,11 @@ export class App extends React.Component {
 
       }
       setTimeout(() => {
-        this.startNewGame();
+        this.startNewGame("continue");
       }, 4000);
 
     } else {
-      this.setState({ message: 'Game over! Please start a new game.' });
+      this.setState({ message: 'You are out of money!' });
     }
   }
 
@@ -415,7 +424,7 @@ export class App extends React.Component {
               <div className="card-body">
                 <div className="card-text d-flex justify-content-around">
                   {
-                    !this.state.currentBet ?
+                    (!this.state.currentBet && this.state.wallet > 0) ?
                       <div className="field has-addons">
                         <div className="control">
                           <input className="input" type="text" value={this.state.inputValue} onChange={this.inputChange.bind(this)} />
@@ -481,7 +490,7 @@ export class App extends React.Component {
 
 const Card = ({ number, suit }) => {
   const combo = (number) ? `${number}${suit}` : null;
-  const color = (suit === '♦' || suit === '♥') ? 'playing-card-red' : 'playing-card';
+  // const color = (suit === '♦' || suit === '♥') ? 'playing-card-red' : 'playing-card';
 
   return (
       <div className="d-inline-flex justify-content-center" >

@@ -109,7 +109,8 @@ app.put('/users/:user', (req, res) => {
     let money;
     req.body.user ? user = req.body.user : user = req.params.user;
     req.body.password ? password = req.body.password : password = login_data.get(req.params.user).password;
-    req.body.money ? money = req.body.money : money = login_data.get(req.params.user).money;
+    req.body.money ? money = req.body.money : req.body.money === 0 ? money = 0 : money = login_data.get(req.params.user).money;
+    
     if (login_data.get(user) && user !== req.session.user) {
         res.status(404).send("Username taken. Try again.");
         return;
@@ -118,14 +119,13 @@ app.put('/users/:user', (req, res) => {
         res.status(403).send("Password must be at least 8 characters.");
         return;
     }
-    if (money < 0) {
-        money = 0;
-    }
+
     login_data.set(user, {
         user,
         password,
         money
     });
+
     if (user !== req.params.user) {
         login_data.del(req.params.user);
         req.session.user = user;
