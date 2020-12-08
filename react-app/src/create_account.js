@@ -31,11 +31,11 @@ export function CreateAccount() {
                 },
                 withCredentials: true
             });
-            setMessage("Account created! Login to start playing.");
+            setMessage(["Account created! Login to start playing.", "text-success"]);
             return;
         } catch (err) {
             console.log(err.message);
-            setMessage('There was an error creating your account. Make sure your password is at least 8 characters.');
+            setMessage(['There was an error creating your account. Make sure your password is at least 8 characters.', "text-danger"]);
             return;
         }
     }
@@ -45,27 +45,29 @@ export function CreateAccount() {
     }
 
     return (
-    <form className="form-signin" onSubmit={handleCreateAccountAttempt}>
-        <div className="text-center mb-4">
-            <h1 className="h3 mb-3 font-weight-normal">New User Registration</h1>
-        </div>
+    <div className="container">
+        <form className="form-signin" onSubmit={handleCreateAccountAttempt}>
+            <div className="text-center mb-4">
+                <h1 className="h3 mb-3 font-weight-normal">New User Registration</h1>
+            </div>
 
-        <div className="form-label-group">
-            <input id="inputUsername" className="form-control" placeholder="Username" required autoFocus onChange={handleChange}/>
-            <label htmlFor="inputUsername">Username</label>
-        </div>
+            <div className="form-label-group">
+                <input id="inputUsername" className="form-control" placeholder="Username" required autoFocus onChange={handleChange}/>
+                <label htmlFor="inputUsername">Username</label>
+            </div>
 
-        <div className="form-label-group">
-            <input type="password" id="inputPassword" className="form-control" placeholder="Password" required onChange={handleChange}/>
-            <label htmlFor="inputPassword">Password</label>
-        </div>
+            <div className="form-label-group">
+                <input type="password" id="inputPassword" className="form-control" placeholder="Password" required onChange={handleChange}/>
+                <label htmlFor="inputPassword">Password</label>
+            </div>
 
-        <p className="error text-center">{message}</p>
+            <p className={message[1]}>{message[0]}</p>
 
-        <button className="btn btn-lg btn-primary btn-block" type="submit">Create Account</button>
+            <button className="btn btn-lg btn-primary btn-block" type="submit">Create Account</button>
 
-        <button onClick={handleLoginButtonClick} className="btn btn-lg btn-primary btn-block">Login</button>
-        <p className="mt-5 mb-3 text-muted text-center">Created by Randy Sievers, Emily Fallon, Michael Carter, John Fulghieri</p>
-    </form>
+            <button onClick={handleLoginButtonClick} className="btn btn-lg btn-primary btn-block">Login</button>
+            <p className="mt-5 mb-3 text-muted text-center">Created by Randy Sievers, Emily Fallon, Michael Carter, John Fulghieri</p>
+        </form>
+    </div>
     ); 
 }

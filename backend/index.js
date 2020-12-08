@@ -116,7 +116,7 @@ app.put('/users/:user', (req, res) => {
     let money;
     req.body.user ? user = req.body.user : user = req.params.user;
     req.body.password ? password = req.body.password : password = login_data.get(req.params.user).password;
-    req.body.money ? money = req.body.money : money = login_data.get(req.params.user).money;
+    req.body.money ? money = req.body.money : req.body.money === 0 ? money = 0 : money = login_data.get(req.params.user).money;
     if (login_data.get(user) && user !== req.session.user) {
         res.status(404).send("Username taken. Try again.");
         return;

@@ -2,7 +2,7 @@
   "newuser": {
     "user": "newuser",
     "password": "Sandybeach82",
-    "money": 5700
+    "money": 2800
   },
   "third": {
     "user": "third",
@@ -13,5 +13,35 @@
     "user": "fourth",
     "password": "bbbbbbbb",
     "money": 4150
+  },
+  "anotheruser": {
+    "user": "anotheruser",
+    "password": "aaaaaaaa",
+    "money": 7000
+  },
+  "reallygoodatblackjack": {
+    "user": "reallygoodatblackjack",
+    "password": "bbbbbbbb",
+    "money": 8200
+  },
+  "imalright": {
+    "user": "imalright",
+    "password": "cccccccc",
+    "money": 4700
+  },
+  "reallybadatblackjack": {
+    "user": "reallybadatblackjack",
+    "password": "dddddddd",
+    "money": 0
+  },
+  "autocomplete": {
+    "user": "autocomplete",
+    "password": "eeeeeeee",
+    "money": 5000
+  },
+  "autocompleat": {
+    "user": "autocompleat",
+    "password": "ffffffff",
+    "money": 5000
   }
 }
