@@ -1,10 +1,8 @@
-// import reactBulmaComponents from 'reactBulmaComponents';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { Login } from './login';
-// import { get } from 'jquery';
-// import './game.css';
+
 
 
 
@@ -36,17 +34,6 @@ export class App extends React.Component {
   ReactDOM.render(<Login />, document.getElementById('root'));
   }
 
-/*   generateDeck() {
-    const cards = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
-    const suits = ['♦', '♣', '♥', '♠'];
-    const deck = [];
-    for (let i = 0; i < cards.length; i++) {
-      for (let j = 0; j < suits.length; j++) {
-        deck.push({ number: cards[i], suit: suits[j] });
-      }
-    }
-    return deck;
-  } */
   async generateDeck(){
     let result = await axios({
       'method': 'get',
@@ -56,16 +43,12 @@ export class App extends React.Component {
   }
 
   async dealCards() {
-    console.log("initial deal: " + this.state.deck);
     let initialDraw = await axios({
       'method': 'get',
       'url': `https://deckofcardsapi.com/api/deck/${this.state.deck}/draw/?count=3`
     });
 
     const [playerCard1, dealerCard1, playerCard2] = [...initialDraw.data.cards];
-    /* const playerCard1 = this.getRandomCard(deck);
-    const dealerCard1 = this.getRandomCard(playerCard1.updatedDeck);
-    const playerCard2 = this.getRandomCard(dealerCard1.updatedDeck); */
     const playerStartingHand = [playerCard1, playerCard2];
     const dealerStartingHand = [dealerCard1];
 
@@ -95,10 +78,7 @@ export class App extends React.Component {
         };
 
         const {remainder, player, dealer } = await this.dealCards();
-        
-        console.log(player);
-        console.log(dealer);
-        
+                
         this.setState({
           deckRemaining: remainder,
           dealer: dealer,
@@ -121,9 +101,6 @@ export class App extends React.Component {
   
         const {remainder, player, dealer } = await this.dealCards();
   
-        console.log(player);
-        console.log(dealer);
-  
         this.setState({
           deck: deckID,
           deckRemaining: remainder,
@@ -140,14 +117,6 @@ export class App extends React.Component {
       
     }
   }
-
-  /* getRandomCard(deck) {
-    const updatedDeck = deck;
-    const randomIndex = Math.floor(Math.random() * updatedDeck.length);
-    const randomCard = updatedDeck[randomIndex];
-    updatedDeck.splice(randomIndex, 1);
-    return { randomCard, updatedDeck };
-  } */
 
   async placeBet() {
     const currentBet = this.state.inputValue;
@@ -196,16 +165,12 @@ export class App extends React.Component {
   async hit() {
     if (!this.state.gameOver) {
       if (this.state.currentBet) {
-        console.log("hit: " + this.state.deck);
         let newCard = await axios({
           'method': 'get',
           'url': `https://deckofcardsapi.com/api/deck/${this.state.deck}/draw/?count=1`
         });
-        // const { randomCard } = newCard.data.cards[0];
-        // console.log(newCard);
         const player = this.state.player;
         player.cards.push(newCard.data.cards[0]);
-        // console.log(player.cards);
         player.count = this.getCount(player.cards);
 
         if (player.count === 21) {
@@ -213,7 +178,7 @@ export class App extends React.Component {
           this.stand();
         } else if (player.count > 21) {
           this.setState({ player, message: 'BUST!' });
-          axios({
+          await axios({
             method: 'put',
             url: `${this.state.serverURL}/users/${this.props.username}`,
             withCredentials: true,
@@ -255,7 +220,7 @@ export class App extends React.Component {
             wallet: result.data.money, 
             currentBet 
           });
-          this.hit();
+          await this.hit();
           if (this.getCount(this.state.player.cards) < 21) {
             this.stand();
           }
@@ -271,18 +236,14 @@ export class App extends React.Component {
   }
 
   async dealerDraw(dealer, deck) {
-    console.log("dealer Draw: " + deck);
     const dealerDraw = await axios({
       method: 'get',
       url: `https://deckofcardsapi.com/api/deck/${deck}/draw/?count=1`
     });
     const updatedDeck = dealerDraw.data.deck_id;
-    // setTimeout(() => {
-      dealer.cards.push(dealerDraw.data.cards[0]);
-      dealer.count = this.getCount(dealer.cards);
-    // }, 2000);
+    dealer.cards.push(dealerDraw.data.cards[0]);
+    dealer.count = this.getCount(dealer.cards);
     
-    // this.setState({ deck: dealerDraw.data.deckID, dealer });
     return {dealer, updatedDeck};
   }
 
@@ -296,7 +257,6 @@ export class App extends React.Component {
           rearranged.unshift(card);
       };
     }
-      // (card.number === 'A') ? rearranged.push(card) : rearranged.unshift(card);
     });
 
     return rearranged.reduce((total, card) => {
@@ -318,25 +278,18 @@ export class App extends React.Component {
             'method': 'get',
             'url': `https://deckofcardsapi.com/api/deck/${this.state.deck}/draw/?count=1`
           });
-          console.log("deck: " + this.state.deck);
           const remainder = dealerCard.data.remaining;
           let deck = dealerCard.data.deck_id;
-          console.log(deck);
           let dealer = this.state.dealer;
-          console.log("dealer: " + this.state.dealer);
           dealer.cards.pop();
           dealer.cards.push(dealerCard.data.cards[0]);
           dealer.count = this.getCount(dealer.cards);
 
           // Keep drawing cards until count is 17 or more
           while (dealer.count < 17) {
-            console.log(dealer.count);
             const draw = await this.dealerDraw(dealer, deck);
-
-            // setTimeout(() => {
-              dealer = draw.dealer;
-              deck = draw.updatedDeck;
-            // }, 2000);
+            dealer = draw.dealer;
+            deck = draw.updatedDeck;
           }
 
           if (dealer.count > 21) {
@@ -427,29 +380,13 @@ export class App extends React.Component {
     }
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.startNewGame();
     const body = document.querySelector('body');
     body.addEventListener('keydown', this.handleKeyDown.bind(this));
   }
 
   render() {
-    /* console.log("rendering game with Dealer: "+this.state.dealer+" Player: "+this.state.player);
-    let dealerCount;
-    const card1 = this.state.dealer.cards[0].code.split("")[0];
-    const card2 = this.state.dealer.cards[1].code.split("")[0];
-    if (card2) {
-      dealerCount = this.state.dealer.count;
-    } else {
-      if (card1 === 'J' || card1 === 'Q' || card1 === 'K') {
-        dealerCount = 10;
-      } else if (card1 === 'A') {
-        dealerCount = 11;
-      } else {
-        dealerCount = card1;
-      }
-    } */
-
     return (
       <div className="container-fluid">
       {/* <!-- Header --> */}
@@ -463,13 +400,11 @@ export class App extends React.Component {
               <div className="card-body">
                   <h4 className="card-title text-center username">Dealer</h4>
                   <div className="text-center hand">
-                    <table className="cards">
                       {
                         this.state.currentBet ?
-                        
                           <div>
                             {this.state.dealer.cards.map((card, i) => {
-                              return <img src={card.image} width="65" height="100" alt={`${card.value} of ${card.suit}`}/>
+                              return <img key={i} src={card.image} width="65" height="100" alt={`${card.value} of ${card.suit}`}/>
                               //return <Card key={i} number={card.code.split("")[0]} suit={card.suit} />;
                              })}
                             <p>({this.state.dealer.count})</p>
@@ -477,7 +412,6 @@ export class App extends React.Component {
                         
                         : null
                       }
-                    </table>
                   </div>
               </div>
           </div>
@@ -531,7 +465,7 @@ export class App extends React.Component {
                         this.state.currentBet ?
                           <div className="cards">
                             {this.state.player.cards.map((card, i) => {
-                              return <img src={card.image} width="65" height="100" alt={`${card.value} of ${card.suit}`}/>
+                              return <img key={i} src={card.image} width="65" height="100" alt={`${card.value} of ${card.suit}`}/>
                               //return <Card key={i} number={card.number} suit={card.suit} />
                             })}
                               ({this.state.player.count})
@@ -556,20 +490,5 @@ export class App extends React.Component {
       {/* <!-- End Player Area --> */}
   </div>
     );
-
   }
-
 };
-
-// const Card = ({ number, suit }) => {
-//   const combo = (number) ? `${number}${suit}` : null;
-//   const color = (suit === '♦' || suit === '♥') ? 'card-red' : 'card';
-
-//   return (
-//     <td>
-//       <div className={color}>
-//         {combo}
-//       </div>
-//     </td>
-//   );
-// };

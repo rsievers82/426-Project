@@ -43,5 +43,10 @@
     "user": "autocompleat",
     "password": "ffffffff",
     "money": 5000
+  },
+  "randysievers": {
+    "user": "randysievers",
+    "password": "blackjack",
+    "money": 29600
   }
 }
