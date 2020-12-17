@@ -20,29 +20,18 @@ export class App extends React.Component {
       currentBet: null,
       gameOver: false,
       message: null,
-<<<<<<< HEAD
-    };
-
-=======
       serverURL: 'http://localhost:3030'
     };
     //this.props.serverURL
     //'http://localhost:5001/blackjackc426project/us-central1/app'
->>>>>>> hosting-exp
   }
 
   handleLogoutButtonClick(event) {
     axios({
       "method": "get",
-<<<<<<< HEAD
-      "url": "http://localhost:3030/logout"
-    });
-    ReactDOM.render(<Login />, document.getElementById('root'));
-=======
       "url": this.state.serverURL+"/logout"
   });
   ReactDOM.render(<Login />, document.getElementById('root'));
->>>>>>> hosting-exp
   }
 
   async generateDeck(){
@@ -107,15 +96,6 @@ export class App extends React.Component {
       }
     } else {
       if (this.state.wallet > 0) {
-<<<<<<< HEAD
-        const deck = this.generateDeck();
-        const { updatedDeck, player, dealer } = this.dealCards(deck);
-  
-        this.setState({
-          deck: updatedDeck,
-          dealer,
-          player,
-=======
         const {deckID} = await this.generateDeck();
         this.setState({ deck:deckID });
   
@@ -126,23 +106,15 @@ export class App extends React.Component {
           deckRemaining: remainder,
           dealer: dealer,
           player: player,
->>>>>>> hosting-exp
           inputValue: '',
           currentBet: null,
           gameOver: false,
           message: null
-<<<<<<< HEAD
-        });
-      } else {
-        this.setState({ message: "You have no money!"})
-      }
-=======
         });  
       } else {
         this.setState({ gameOver: true, message: "Game over! You are broke!" });
       }
       
->>>>>>> hosting-exp
     }
   }
 
@@ -234,29 +206,6 @@ export class App extends React.Component {
     if (!this.state.gameOver) {
       if (this.state.currentBet) {
         if (this.state.player.cards.length === 2) {
-<<<<<<< HEAD
-          if (!(this.state.currentBet > this.state.wallet)) {
-            let currentBet = this.state.currentBet;
-            let result = await axios({
-              method: 'put',
-              url: `http://localhost:3030/users/${this.props.username}`,
-              withCredentials: true,
-              data: {
-                'money': this.state.wallet - currentBet
-              }
-            });
-            currentBet *= 2;
-            this.setState({
-              wallet: result.data.money,
-              currentBet
-            });
-            this.hit();
-            if (this.getCount(this.state.player.cards) < 21) {
-              this.stand();
-            }
-          } else {
-            this.setState({ message: "You do not have enough money to double down."})
-=======
           let currentBet = this.state.currentBet;
           let result = await axios({
             method: 'put',
@@ -274,7 +223,6 @@ export class App extends React.Component {
           await this.hit();
           if (this.getCount(this.state.player.cards) < 21) {
             this.stand();
->>>>>>> hosting-exp
           }
         } else {
           this.setState({ message: "You cannot double down now." });
@@ -286,14 +234,6 @@ export class App extends React.Component {
       this.setState({ message: "You are out of money." })
     }
   }
-<<<<<<< HEAD
-  
-
-
-  dealerDraw(dealer, deck) {
-    const { randomCard, updatedDeck } = this.getRandomCard(deck);
-    dealer.cards.push(randomCard);
-=======
 
   async dealerDraw(dealer, deck) {
     const dealerDraw = await axios({
@@ -302,7 +242,6 @@ export class App extends React.Component {
     });
     const updatedDeck = dealerDraw.data.deck_id;
     dealer.cards.push(dealerDraw.data.cards[0]);
->>>>>>> hosting-exp
     dealer.count = this.getCount(dealer.cards);
     
     return {dealer, updatedDeck};
@@ -333,32 +272,6 @@ export class App extends React.Component {
 
   async stand() {
     if (!this.state.gameOver) {
-<<<<<<< HEAD
-      // Show dealer's 2nd card
-      const randomCard = this.getRandomCard(this.state.deck);
-      let deck = randomCard.updatedDeck;
-      let dealer = this.state.dealer;
-      dealer.cards.pop();
-      dealer.cards.push(randomCard.randomCard);
-      dealer.count = this.getCount(dealer.cards);
-
-      // Keep drawing cards until count is 17 or more
-      while (dealer.count < 17) {
-        // setTimeout(() => {
-        const draw = this.dealerDraw(dealer, deck);
-        dealer = draw.dealer;
-        deck = draw.updatedDeck;
-        // }, 2000);
-      }
-
-      if (dealer.count > 21) {
-        let result = await axios({
-          method: 'put',
-          url: `http://localhost:3030/users/${this.props.username}`,
-          withCredentials: true,
-          data: {
-            "money": this.state.wallet + this.state.currentBet * 2
-=======
       if (this.state.currentBet) {
           // Show dealer's 2nd card
           const dealerCard = await axios({
@@ -377,7 +290,6 @@ export class App extends React.Component {
             const draw = await this.dealerDraw(dealer, deck);
             dealer = draw.dealer;
             deck = draw.updatedDeck;
->>>>>>> hosting-exp
           }
 
           if (dealer.count > 21) {
@@ -441,17 +353,8 @@ export class App extends React.Component {
       } else {
         this.setState({ message: "Please place your bet." });
       }
-<<<<<<< HEAD
-      setTimeout(() => {
-        this.startNewGame("continue");
-      }, 4000);
-
-    } else {
-      this.setState({ message: 'You are out of money!' });
-=======
     } else {
       this.setState({ message: 'You have no money!' });
->>>>>>> hosting-exp
     }
   }
 
@@ -484,53 +387,16 @@ export class App extends React.Component {
   }
 
   render() {
-<<<<<<< HEAD
-    // let dealerCount;
-    // const card1 = this.state.dealer.cards[0].number;
-    // const card2 = this.state.dealer.cards[1].number;
-    // if (card2) {
-    //   dealerCount = this.state.dealer.count;
-    // } else {
-    //   if (card1 === 'J' || card1 === 'Q' || card1 === 'K') {
-    //     dealerCount = 10;
-    //   } else if (card1 === 'A') {
-    //     dealerCount = 11;
-    //   } else {
-    //     dealerCount = card1;
-    //   }
-    // }
-
-=======
->>>>>>> hosting-exp
     return (
       <div className="container-fluid">
-        {/* <!-- Header --> */}
-        <header className="site-header d-flex p-2 justify-content-between">
+      {/* <!-- Header --> */}
+      <header className="site-header d-flex p-2 justify-content-between">
           <div className="site-title text-center h3">Blackjack - CS 426</div>
           <button className="btn btn-lg btn-primary" onClick={this.handleLogoutButtonClick.bind(this)}>Logout</button>
-        </header>
-        {/* <!-- Dealer Area --> */}
-        <div className="row d-flex p-2 justify-content-center">
+      </header>
+      {/* <!-- Dealer Area --> */}
+      <div className="row d-flex p-2 justify-content-center">
           <div className="card">
-<<<<<<< HEAD
-            <div className="card-body">
-              <h4 className="card-title text-center username">Dealer</h4>
-              <div className="text-center hand">
-                <table className="cards table table-bordered">
-                  {
-                    this.state.currentBet ?
-                      <tbody>
-                        <tr>
-                          {this.state.dealer.cards.map((card, i) => {
-                            return <Card key={i} number={card.number} suit={card.suit} />;
-                          })}
-                          <td>({this.state.dealer.count})</td>
-                        </tr>
-                      </tbody>
-                      : null
-                  }
-                </table>
-=======
               <div className="card-body">
                   <h4 className="card-title text-center username">Dealer</h4>
                   <div className="text-center hand">
@@ -547,28 +413,12 @@ export class App extends React.Component {
                         : null
                       }
                   </div>
->>>>>>> hosting-exp
               </div>
-            </div>
           </div>
-        </div>
-        {/* <!-- Betting Area --> */}
-        <div className="row d-flex p-2 justify-content-center">
+      </div>
+      {/* <!-- Betting Area --> */}
+      <div className="row d-flex p-2 justify-content-center">
           <div className="d-flex justify-content-center flex-column col-md-3">
-<<<<<<< HEAD
-            <div className="card">
-              <div className="card-body">
-                <div className="card-text d-flex justify-content-around">
-                  {
-                    (!this.state.currentBet && this.state.wallet > 0) ?
-                      <div className="field has-addons">
-                        <div className="control">
-                          <input className="input" type="text" value={this.state.inputValue} onChange={this.inputChange.bind(this)} />
-                        </div>
-                        <div className="control">
-                          <button className="button is-warning" onClick={() => { this.placeBet() }}>Place Bet</button>
-                        </div>
-=======
               <div className="card">
                   <div className="card-body">
                       <div className="card-text d-flex justify-content-around">
@@ -598,44 +448,15 @@ export class App extends React.Component {
                           <button className="btn btn-lg btn-primary" onClick={this.hit.bind(this)}>Hit</button>
                           <button className="btn btn-lg btn-primary" onClick={this.stand.bind(this)}>Stand</button>
                           <button className="btn btn-lg btn-primary" onClick={this.doubleDown.bind(this)}>Double Down</button>
->>>>>>> hosting-exp
                       </div>
-                      : null
-                  }
-                </div>
+                  </div>
               </div>
-            </div>
-            <div className="card">
-              <div className="card-body">
-                <div className="card-text d-flex justify-content-around">
-                  <button className="btn btn-lg btn-primary" onClick={this.hit.bind(this)}>Hit</button>
-                  <button className="btn btn-lg btn-primary" onClick={this.stand.bind(this)}>Stand</button>
-                  <button className="btn btn-lg btn-primary" onClick={this.doubleDown.bind(this)}>Double Down</button>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
-        <h6 className="mt-6 text-center">{this.state.message}</h6>
+      </div>
 
       {/* <!-- Players Area --> */}
       <div className="row fixed-bottom p-2">
           <div className="col-lg-12 d-inline-flex justify-content-around players card-group">
-<<<<<<< HEAD
-              {/* <!-- sample player card --> */}
-              <div className="card">
-                  <div className="card-top text-center hand">
-                    {
-                      this.state.currentBet ? 
-                        <div className="cards">
-                          {this.state.player.cards.map((card, i) => {
-                          return <Card key={i} number={card.number} suit={card.suit} />
-                          })}
-                          ({this.getCount(this.state.player.cards)})
-                        </div>
-                      : null
-                    }
-=======
                 
               {/* <!-- sample player card --> */}
               <div className="card">
@@ -651,7 +472,6 @@ export class App extends React.Component {
                           </div>
                         : null
                       }
->>>>>>> hosting-exp
                   </div>
                   <div className="card-body">
                       <h4 className="card-title text-center username">{this.props.username}</h4>
@@ -663,30 +483,12 @@ export class App extends React.Component {
                       </p>
                   </div>
               </div>
-<<<<<<< HEAD
-            </div>
-=======
 
 
->>>>>>> hosting-exp
           </div>
-        {/* <!-- End Player Area --> */}
       </div>
+      {/* <!-- End Player Area --> */}
+  </div>
     );
   }
-<<<<<<< HEAD
-
-};
-
-const Card = ({ number, suit }) => {
-  const combo = (number) ? `${number}${suit}` : null;
-  // const color = (suit === '♦' || suit === '♥') ? 'playing-card-red' : 'playing-card';
-
-  return (
-      <div className="d-inline-flex justify-content-center" >
-        {combo}
-      </div>
-  );
-=======
->>>>>>> hosting-exp
 };

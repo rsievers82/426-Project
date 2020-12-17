@@ -2,8 +2,6 @@ import axios from 'axios';
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CreateAccount} from './create_account';
-// import './floatinglabels.css';
-// import './styles.css';
 import { App } from "./game";
 import { Leaderboard } from './leaderboard';
 //server URL in one easy place to change
@@ -81,10 +79,7 @@ export function Login() {
             </div>
 
             <p className="text-center text-danger">{message}</p>
-<<<<<<< HEAD
-=======
             
->>>>>>> hosting-exp
             <button className="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
             <p className="mt-3 mb-2 text-center">Don't have an account yet?</p>
             <button onClick={handleCreateButtonClick} className="btn btn-lg btn-primary btn-block">Create Account</button>

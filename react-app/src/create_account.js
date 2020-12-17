@@ -8,7 +8,7 @@ const serverURL= 'http://localhost:3030';
 export function CreateAccount() {
     const [usernameText, setUsernameText] = useState('');
     const [passwordText, setPasswordText] = useState('');
-    const [message, setMessage] = useState([]);
+    const [message, setMessage] = useState('');
 
     function handleChange(event) {
         if (event.target.id === "inputUsername") {

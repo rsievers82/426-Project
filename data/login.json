@@ -42,11 +42,16 @@
   "autocompleat": {
     "user": "autocompleat",
     "password": "ffffffff",
-    "money": 5000
+    "money": 0
   },
   "randysievers": {
     "user": "randysievers",
     "password": "blackjack",
     "money": 29600
+  },
+  "thisappisreallycool": {
+    "user": "thisappisreallycool",
+    "password": "uncchapelhill",
+    "money": 5600
   }
 }
