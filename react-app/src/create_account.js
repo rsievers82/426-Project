@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import {Login} from './login';
 import axios from 'axios';
+const serverURL= 'http://localhost:3030';
 
 
 export function CreateAccount() {
@@ -23,7 +24,7 @@ export function CreateAccount() {
         try {
             await axios({
                 method: 'post',
-                url: 'http://localhost:3030/create',
+                url: serverURL+'/create',
                 data: {
                     'user': usernameText,
                     'password': passwordText

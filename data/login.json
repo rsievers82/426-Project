@@ -2,7 +2,7 @@
   "newuser": {
     "user": "newuser",
     "password": "Sandybeach82",
-    "money": 6200
+    "money": 2800
   },
   "third": {
     "user": "third",
@@ -12,36 +12,41 @@
   "fourth": {
     "user": "fourth",
     "password": "bbbbbbbb",
-    "money": 4450
+    "money": 4150
   },
-  "letssee": {
-    "user": "letssee",
-    "password": "weshallsee",
+  "anotheruser": {
+    "user": "anotheruser",
+    "password": "aaaaaaaa",
+    "money": 7000
+  },
+  "reallygoodatblackjack": {
+    "user": "reallygoodatblackjack",
+    "password": "bbbbbbbb",
+    "money": 8200
+  },
+  "imalright": {
+    "user": "imalright",
+    "password": "cccccccc",
+    "money": 4700
+  },
+  "reallybadatblackjack": {
+    "user": "reallybadatblackjack",
+    "password": "dddddddd",
     "money": 0
   },
-  "goodusername": {
-    "user": "goodusername",
-    "password": "goodpass",
-    "money": 5400
-  },
-  "verygoodatblackjack": {
-    "user": "verygoodatblackjack",
-    "password": "alalalal",
-    "money": 10000
-  },
-  "notsogoodatblackjack": {
-    "user": "notsogoodatblackjack",
-    "password": "qwertyui",
-    "money": 3000
-  },
-  "imalright9": {
-    "user": "imalright9",
-    "password": "09876543",
-    "money": 0
-  },
-  "lastone": {
-    "user": "lastone",
-    "password": "lastpassword",
+  "autocomplete": {
+    "user": "autocomplete",
+    "password": "eeeeeeee",
     "money": 5000
+  },
+  "autocompleat": {
+    "user": "autocompleat",
+    "password": "ffffffff",
+    "money": 5000
+  },
+  "randysievers": {
+    "user": "randysievers",
+    "password": "blackjack",
+    "money": 29600
   }
 }
